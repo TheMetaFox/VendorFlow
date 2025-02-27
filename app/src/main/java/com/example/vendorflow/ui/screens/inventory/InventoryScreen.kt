@@ -73,12 +73,11 @@ fun InventoryScreen(
                 )
             )
         },
-
-        ) { innerPadding ->
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .padding(paddingValues = innerPadding)
-                .padding(all = 10.dp)
+                .padding(start = 10.dp, top = 10.dp, end = 10.dp)
                 .fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
@@ -119,20 +118,19 @@ fun InventoryScreen(
 
                     Row(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(5.dp),
+                            .fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Row(
-                            horizontalArrangement = Arrangement.Start,
+                            horizontalArrangement = Arrangement.spacedBy(5.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Box {
                                 Image(
                                     imageVector = Icons.Default.ShoppingBag,
                                     contentDescription = "product image",
-                                    modifier = Modifier.size(80.dp),
+                                    modifier = Modifier.size(100.dp),
                                 )
                                 Image(
                                     painter = rememberAsyncImagePainter(
@@ -140,7 +138,7 @@ fun InventoryScreen(
                                         contentScale = ContentScale.Crop
                                     ),
                                     contentDescription = "product image",
-                                    modifier = Modifier.size(80.dp),
+                                    modifier = Modifier.size(100.dp),
                                     contentScale = ContentScale.Crop
                                 )
                             }

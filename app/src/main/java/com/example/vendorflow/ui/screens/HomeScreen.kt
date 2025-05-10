@@ -104,6 +104,18 @@ fun HomeScreen(
             }
             Button(
                 onClick = {
+                    navController.navigate(route = Screen.Collections.route)
+                },
+                modifier = Modifier
+                    .size(300.dp, 75.dp)
+            ) {
+                Text(
+                    text = "Access Collections",
+                    fontSize = 20.sp
+                )
+            }
+            Button(
+                onClick = {
                     navController.navigate(route = Screen.Sales.route)
                 },
                 modifier = Modifier

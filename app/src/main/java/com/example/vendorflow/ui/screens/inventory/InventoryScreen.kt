@@ -37,7 +37,7 @@ import androidx.core.net.toUri
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
-import com.example.vendorflow.data.entities.Product
+import com.example.vendorflow.data.room.entities.Product
 import com.example.vendorflow.ui.theme.VendorFlowTheme
 import java.util.Locale
 
@@ -151,7 +151,7 @@ fun InventoryScreen(
                                     horizontalAlignment = Alignment.Start
                                 ) {
                                     Text(
-                                        text = inventoryItem.productId.toString().slice(0..1) + "-" + inventoryItem.productId.toString().slice(2..5),
+                                        text = String.format(Locale.ENGLISH, "%03d", inventoryItem.productId),
                                         fontSize = 10.sp
                                     )
                                     Text(
@@ -230,9 +230,10 @@ fun InventoryScreen(
 fun InventoryScreenPreview() {
     VendorFlowTheme {
         val product = Product(
-            productId = 246368,
+            productId = 1,
             productName = "Hello Kitty Kandi",
-            collectionName = "Sanrio Collection",
+//            collectionName = "Sanrio Collection",
+            collectionId = 0,
             image = Uri.EMPTY,
             price = 2f,
             cost = 0.23f,

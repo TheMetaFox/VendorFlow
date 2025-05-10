@@ -10,6 +10,9 @@ import com.example.vendorflow.ui.screens.catalog.CatalogEvent
 import com.example.vendorflow.ui.screens.catalog.CatalogScreen
 import com.example.vendorflow.ui.screens.catalog.CatalogState
 import com.example.vendorflow.ui.screens.HomeScreen
+import com.example.vendorflow.ui.screens.collections.CollectionsEvent
+import com.example.vendorflow.ui.screens.collections.CollectionsScreen
+import com.example.vendorflow.ui.screens.collections.CollectionsState
 import com.example.vendorflow.ui.screens.inventory.InventoryEvent
 import com.example.vendorflow.ui.screens.inventory.InventoryScreen
 import com.example.vendorflow.ui.screens.inventory.InventoryState
@@ -33,11 +36,13 @@ fun NavGraph(
     onTransactionEvent: (TransactionEvent) -> Unit,
     onInventoryEvent: (InventoryEvent) -> Unit,
     onCatalogEvent: (CatalogEvent) -> Unit,
+    onCollectionsEvent: (CollectionsEvent) -> Unit,
     onSalesEvent: (SalesEvent) -> Unit,
     loginState: LoginState,
     transactionState: TransactionState,
     inventoryState: InventoryState,
     catalogState: CatalogState,
+    collectionsState: CollectionsState,
     salesState: SalesState,
 ) {
     val navController: NavHostController = rememberNavController()
@@ -78,6 +83,13 @@ fun NavGraph(
                 navController = navController,
                 onCatalogEvent = onCatalogEvent,
                 catalogState = catalogState
+            )
+        }
+        composable(route = Screen.Collections.route) {
+            CollectionsScreen(
+                navController = navController,
+                onCollectionsEvent = onCollectionsEvent,
+                collectionsState = collectionsState
             )
         }
         composable(route = Screen.Sales.route) {

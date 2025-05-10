@@ -1,4 +1,4 @@
-package com.example.vendorflow.data.entities
+package com.example.vendorflow.data.room.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

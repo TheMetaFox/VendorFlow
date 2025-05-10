@@ -2,8 +2,8 @@ package com.example.vendorflow
 
 import android.content.Context
 import androidx.room.Room
-import com.example.vendorflow.data.VendorDao
-import com.example.vendorflow.data.VendorDatabase
+import com.example.vendorflow.data.room.VendorDao
+import com.example.vendorflow.data.room.VendorDatabase
 import com.example.vendorflow.data.VendorRepository
 import dagger.Module
 import dagger.Provides
@@ -27,8 +27,7 @@ object DatabaseModule {
                 klass = VendorDatabase::class.java,
                 name = "Vendor.db"
             )
-            .fallbackToDestructiveMigrationOnDowngrade()
-            .fallbackToDestructiveMigration()
+            .addMigrations(VendorDatabase.migration4to5, VendorDatabase.migration5to6, VendorDatabase.migration6to7)
             .build()
         return vendorDatabase
     }
@@ -40,7 +39,7 @@ object DatabaseModule {
 
     @Singleton
     @Provides
-    fun provideRepository(
+    fun provideDatabaseRepository(
         dao: VendorDao
     ) = VendorRepository(dao)
 }

@@ -5,7 +5,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.vendorflow.data.PaymentMethod
 import com.example.vendorflow.data.VendorRepository
-import com.example.vendorflow.data.entities.Product
+import com.example.vendorflow.data.room.entities.Collection
+import com.example.vendorflow.data.room.entities.Product
+import com.example.vendorflow.logic.GetCollectionsOrderedByIdUseCase
+import com.example.vendorflow.logic.GetProductUseCase
+import com.example.vendorflow.logic.GetProductsOrderedByNameUseCase
+import com.example.vendorflow.logic.InsertTransactionUseCase
+import com.example.vendorflow.logic.UpsertCollectionUseCase
+import com.example.vendorflow.logic.UpsertProductUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -14,9 +21,34 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-open class TransactionViewModel(private val vendorRepository: VendorRepository): ViewModel() {
+open class TransactionViewModel(
+//    private val vendorRepository: VendorRepository,
+    private val upsertProductUseCase: UpsertProductUseCase,
+    private val insertTransactionUseCase: InsertTransactionUseCase,
+    private val getCollectionsOrderedByIdUseCase: GetCollectionsOrderedByIdUseCase,
+    private val getProductsOrderedByNameUseCase: GetProductsOrderedByNameUseCase
+): ViewModel() {
 
-    private val _productList: StateFlow<List<Product>> = vendorRepository.getProductsOrderedByPrice()
+//    private val _collectionList: StateFlow<List<Collection>> = vendorRepository.getCollectionsOrderedById()
+//        .stateIn(
+//            scope = viewModelScope,
+//            started = SharingStarted.WhileSubscribed(),
+//            initialValue = emptyList()
+//        )
+    private val _collectionList: StateFlow<List<Collection>> = getCollectionsOrderedByIdUseCase()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(),
+            initialValue = emptyList()
+        )
+
+//    private val _productList: StateFlow<List<Product>> = vendorRepository.getProductsOrderedByName()
+//        .stateIn(
+//            scope = viewModelScope,
+//            started = SharingStarted.WhileSubscribed(),
+//            initialValue = emptyList()
+//        )
+    private val _productList: StateFlow<List<Product>> = getProductsOrderedByNameUseCase()
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),
@@ -26,10 +58,12 @@ open class TransactionViewModel(private val vendorRepository: VendorRepository):
     private val _state: MutableStateFlow<TransactionState> = MutableStateFlow(value = TransactionState())
     open val state: StateFlow<TransactionState> = combine(
         flow = _state,
-        flow2 = _productList,
-        transform = { state, productList ->
+        flow2 = _collectionList,
+        flow3 = _productList,
+        transform = { state, collectionList, productList ->
             state.copy(
-                productList = productList,
+                collectionList = collectionList,
+                productList = productList
             )
         }
     )
@@ -108,20 +142,35 @@ open class TransactionViewModel(private val vendorRepository: VendorRepository):
                 }
             }
             is TransactionEvent.ProcessTransaction -> {
+                if (_state.value.itemQuantityList.isEmpty()) {
+                    Log.i("TransactionViewModel.kt", "No items selected for transaction")
+                    return
+                }
+
                 val itemQuantityList: Map<Product, Int> = _state.value.itemQuantityList
                 val totalAmount: Float = _state.value.totalAmount
                 val paymentMethod: PaymentMethod = _state.value.paymentMethod
 
                 viewModelScope.launch {
                     itemQuantityList.forEach { (item, quantity) ->
-                        vendorRepository.upsertProduct(
+//                        vendorRepository.upsertProduct(
+//                            item.copy(
+//                                stock = item.stock-quantity
+//                            )
+//                        )
+                        upsertProductUseCase(
                             item.copy(
                                 stock = item.stock-quantity
                             )
                         )
                     }
                     Log.i("TransactionViewModel.kt", "itemQuantity=$itemQuantityList\ntotalAmount=$totalAmount\npaymentMethod=$paymentMethod")
-                    vendorRepository.insertTransaction(
+//                    vendorRepository.insertTransaction(
+//                        itemQuantityList = itemQuantityList,
+//                        totalAmount = totalAmount,
+//                        paymentMethod = paymentMethod
+//                    )
+                    insertTransactionUseCase(
                         itemQuantityList = itemQuantityList,
                         totalAmount = totalAmount,
                         paymentMethod = paymentMethod

@@ -1,11 +1,15 @@
 package com.example.vendorflow.ui.screens.catalog
 
 import android.net.Uri
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -16,6 +20,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Feedback
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.MoreVert
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -26,27 +35,28 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.net.toUri
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
-import coil.request.ImageRequest
 import com.example.vendorflow.data.SortType
-import com.example.vendorflow.data.entities.Product
+import com.example.vendorflow.data.room.entities.Product
 import com.example.vendorflow.ui.theme.VendorFlowTheme
-import java.net.URLDecoder
-import java.nio.charset.StandardCharsets
 import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun CatalogScreen(
     modifier: Modifier = Modifier,
@@ -57,7 +67,7 @@ fun CatalogScreen(
     if (catalogState.isShowingCatalogItemDialog) {
         CatalogItemDialog(
             modifier = Modifier
-                .size(width = 300.dp, height = 600.dp),
+                .width(width = 300.dp),
             onCatalogEvent = onCatalogEvent,
             catalogState = catalogState
         )
@@ -79,6 +89,39 @@ fun CatalogScreen(
                         )
                     }
                 },
+                actions = {
+                    var showDropDownMenu by remember { mutableStateOf(false) }
+                    IconButton(
+                        onClick = { showDropDownMenu = true }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.MoreVert,
+                            contentDescription = "more vertical",
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    }
+                    DropdownMenu(
+                        expanded = showDropDownMenu,
+                        onDismissRequest = { showDropDownMenu = false },
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Update Vendor Flow") },
+                            onClick = {
+                                onCatalogEvent(CatalogEvent.UpdateVendorFlow)
+                                showDropDownMenu = false
+                            },
+                            leadingIcon = { Icon(Icons.Outlined.Info, "info") }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Update Notion") },
+                            onClick = {
+                                onCatalogEvent(CatalogEvent.UpdateNotion)
+                                showDropDownMenu = false
+                            },
+                            leadingIcon = { Icon(Icons.Outlined.Feedback, "feedback") }
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors().copy(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -89,7 +132,7 @@ fun CatalogScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    onCatalogEvent(CatalogEvent.ShowCatalogItemDialog)
+                    onCatalogEvent(CatalogEvent.ShowCatalogItemDialog(item = null))
                 },
                 modifier = Modifier
             ) {
@@ -109,34 +152,35 @@ fun CatalogScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(
-                modifier = Modifier
-                    .width(315.dp)
-                    .align(Alignment.End),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.spacedBy(5.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                Spacer(
+                    Modifier
+                        .width(width = 50.dp)
+                )
                 Text(
                     text = "ID",
                     modifier = Modifier
-                        .width(60.dp),
+                        .fillMaxWidth(0.1f),
                     fontSize = 20.sp
                 )
                 Text(
                     text = "Name",
                     modifier = Modifier
-                        .width(135.dp),
+                        .fillMaxWidth(0.6f),
                     fontSize = 20.sp
                 )
                 Text(
                     text = "Price",
                     modifier = Modifier
-                        .width(50.dp),
+                        .fillMaxWidth(0.5f),
                     fontSize = 20.sp
                 )
                 Text(
                     text = "Cost",
                     modifier = Modifier
-                        .width(50.dp),
+                        .fillMaxWidth(),
                     fontSize = 20.sp
                 )
             }
@@ -147,10 +191,24 @@ fun CatalogScreen(
                     count = catalogState.catalogList.size
                 ) {
                     val catalogItem: Product = catalogState.catalogList[it]
+                    var isDropDownMenuVisible: Boolean by remember { mutableStateOf(false) }
+                    var longPressOffset: DpOffset by remember { mutableStateOf(DpOffset.Zero) }
+                    val density: Density = LocalDensity.current
                     Row(
                         modifier = Modifier
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
+                            .fillMaxWidth()
+                            .clickable {
+                                onCatalogEvent(CatalogEvent.ShowCatalogItemDialog(item = catalogItem))
+                            }
+                            .combinedClickable(
+                                onClick = {
+                                    onCatalogEvent(CatalogEvent.ShowCatalogItemDialog(item = catalogItem))
+                                },
+                                onLongClick = {
+                                    isDropDownMenuVisible = true
+                                }
+                            ),
+                        horizontalArrangement = Arrangement.spacedBy(5.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Box {
@@ -173,16 +231,16 @@ fun CatalogScreen(
                         }
                         Box(
                             modifier = Modifier
-                                .width(65.dp)
+                                .fillMaxWidth(0.1f)
                         ) {
                             Text(
-                                text = catalogItem.productId.toString().slice(0..1) + "-" + catalogItem.productId.toString().slice(2..5),
+                                text = String.format(Locale.ENGLISH, "%03d", catalogItem.productId),
                                 fontSize = 15.sp
                             )
                         }
                         Box(
                             modifier = Modifier
-                                .width(135.dp)
+                                .fillMaxWidth(0.6f)
                         ) {
                             Text(
                                 text = catalogItem.productName,
@@ -191,8 +249,7 @@ fun CatalogScreen(
                         }
                         Box(
                             modifier = Modifier
-                                .width(50.dp),
-                            contentAlignment = Alignment.CenterEnd
+                                .fillMaxWidth(0.5f),
                         ) {
                             Text(
                                 text = String.format(Locale.ENGLISH, "\$%.2f", catalogItem.price),
@@ -201,12 +258,23 @@ fun CatalogScreen(
                         }
                         Box(
                             modifier = Modifier
-                                .width(50.dp),
-                            contentAlignment = Alignment.CenterEnd
+                                .fillMaxWidth(),
                         ) {
                             Text(
                                 text = String.format(Locale.ENGLISH, "\$%.2f", catalogItem.cost),
                                 fontSize = 15.sp
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = isDropDownMenuVisible,
+                            onDismissRequest = { isDropDownMenuVisible = false },
+                            offset = longPressOffset
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text(text = "Remove") },
+                                onClick = {
+                                    onCatalogEvent(CatalogEvent.DeleteCatalogItem(item = catalogItem))
+                                }
                             )
                         }
                     }
@@ -223,9 +291,10 @@ fun CatalogScreenPreview() {
 
 
         val product = Product(
-            productId = 246368,
+            productId = 1,
             productName = "Hello Kitty Kandi",
-            collectionName = "Sanrio Collection",
+//            collectionName = "Sanrio Collection",
+            collectionId = 0,
             image = Uri.EMPTY,
             price = 2f,
             cost = 0.23f,

@@ -1,5 +1,6 @@
 package com.example.vendorflow.ui.screens.catalog
 
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ImageSearch
 import androidx.compose.material3.Button
@@ -108,19 +110,6 @@ fun CatalogItemDialog(
                     placeholder = { Text(text = "") },
                 )
                 TextField(
-                    value = catalogState.productIdField,
-                    onValueChange = {
-                        onCatalogEvent(
-                            CatalogEvent.UpdateTextField(
-                                textField = "Product ID",
-                                text = it
-                            )
-                        )
-                    },
-                    label = { Text(text = "Product ID") },
-                    placeholder = { Text(text = "") },
-                )
-                TextField(
                     value = catalogState.priceField,
                     onValueChange = {
                         onCatalogEvent(
@@ -170,7 +159,7 @@ fun CatalogItemDialogPreview() {
     VendorFlowTheme {
         CatalogItemDialog(
             modifier = Modifier
-                .size(width = 300.dp, height = 600.dp),
+                .width(width = 300.dp),
             onCatalogEvent = { },
             catalogState = CatalogState()
         )

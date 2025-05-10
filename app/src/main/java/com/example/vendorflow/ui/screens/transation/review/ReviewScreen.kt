@@ -44,7 +44,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.vendorflow.data.PaymentMethod
-import com.example.vendorflow.data.entities.Product
+import com.example.vendorflow.data.room.entities.Product
 import com.example.vendorflow.ui.screens.transation.TransactionEvent
 import com.example.vendorflow.ui.screens.transation.TransactionState
 import com.example.vendorflow.ui.theme.VendorFlowTheme
@@ -270,9 +270,7 @@ fun ReviewScreen(
 fun ReviewScreenPreview() {
     VendorFlowTheme {
         val product = Product(
-            productId = 2463681,
             productName = "Hello Kitty Kandi",
-            collectionName = "Sanrio Collection",
             image = Uri.EMPTY,
             price = 2f,
             cost = 0.23f,

@@ -1,7 +1,7 @@
 package com.example.vendorflow.ui.screens.transation
 
 import com.example.vendorflow.data.PaymentMethod
-import com.example.vendorflow.data.entities.Product
+import com.example.vendorflow.data.room.entities.Product
 
 sealed interface TransactionEvent {
     data class IncreaseItemQuantity(val product: Product): TransactionEvent

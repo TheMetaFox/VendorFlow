@@ -1,10 +1,7 @@
-package com.example.vendorflow.data
+package com.example.vendorflow.data.room
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.room.TypeConverter
-import java.io.ByteArrayOutputStream
 import java.time.LocalDateTime
 
 class Converters {
@@ -27,17 +24,5 @@ class Converters {
     @TypeConverter
     fun stringToUri(string: String): Uri {
         return Uri.parse(string)
-    }
-
-    @TypeConverter
-    fun bitmapToByteArray(bitmap: Bitmap): ByteArray {
-        val outputStream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream)
-        return outputStream.toByteArray()
-    }
-
-    @TypeConverter
-    fun byteArrayToBitmap(byteArray: ByteArray): Bitmap {
-        return BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
     }
 }

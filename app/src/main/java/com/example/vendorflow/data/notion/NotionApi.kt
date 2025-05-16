@@ -8,8 +8,23 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.post
+import io.ktor.client.statement.HttpResponse
+import io.ktor.http.isSuccess
 
 class NotionApi(private val client: HttpClient) {
+
+//    private fun parseHttpResponse(response: HttpResponse): HttpResponse  {
+//        Log.i("NotionApi.kt", "Response status: ${response.status}")
+//        Log.i("NotionApi.kt", "Value: ${response.status.value}")
+//        Log.i("NotionApi.kt", "Description: ${response.status.description}")
+//        Log.i("NotionApi.kt", "Success: ${response.status.isSuccess()}")
+//        val result = if (response.status.isSuccess()) {
+//            Result.Success(response).data
+//        } else {
+//            Result.Error(response)
+//        }
+//        return response
+//    }
 
     suspend fun getUsers(): Users {
         return client.get(HttpRoutes.USERS).body<Users>()

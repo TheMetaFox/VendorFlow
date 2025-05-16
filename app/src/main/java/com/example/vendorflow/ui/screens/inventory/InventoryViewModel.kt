@@ -2,28 +2,24 @@ package com.example.vendorflow.ui.screens.inventory
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.vendorflow.data.VendorRepository
 import com.example.vendorflow.data.room.entities.Product
 import com.example.vendorflow.logic.GetInventoryCostUseCase
 import com.example.vendorflow.logic.GetInventoryPriceUseCase
 import com.example.vendorflow.logic.GetProductsOrderedByNameUseCase
-import com.example.vendorflow.logic.UpsertCollectionUseCase
 import com.example.vendorflow.logic.UpsertProductUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class InventoryViewModel(
 //    private val vendorRepository: VendorRepository,
     private val upsertProductUseCase: UpsertProductUseCase,
-    private val getProductsOrderedByNameUseCase: GetProductsOrderedByNameUseCase,
-    private val getInventoryPriceUseCase: GetInventoryPriceUseCase,
-    private val getInventoryCostUseCase: GetInventoryCostUseCase
+    getProductsOrderedByNameUseCase: GetProductsOrderedByNameUseCase,
+    getInventoryPriceUseCase: GetInventoryPriceUseCase,
+    getInventoryCostUseCase: GetInventoryCostUseCase
 ): ViewModel() {
 
 //    private val _inventoryList: StateFlow<List<Product>> = vendorRepository.getProductsOrderedByName()

@@ -36,7 +36,6 @@ import androidx.navigation.compose.rememberNavController
 import com.example.vendorflow.data.PaymentMethod
 import com.example.vendorflow.data.room.entities.Sale
 import com.example.vendorflow.data.room.entities.relations.SoldItem
-import com.example.vendorflow.ui.screens.collections.CollectionDialog
 import com.example.vendorflow.ui.theme.VendorFlowTheme
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit

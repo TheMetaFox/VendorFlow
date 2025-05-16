@@ -5,50 +5,31 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.vendorflow.data.SortType
-import com.example.vendorflow.data.VendorRepository
 import com.example.vendorflow.data.room.entities.Product
 import com.example.vendorflow.logic.DeleteProductUseCase
 import com.example.vendorflow.logic.GetCollectionUseCase
 import com.example.vendorflow.logic.GetProductUseCase
 import com.example.vendorflow.logic.GetProductsOrderedByNameUseCase
 import com.example.vendorflow.logic.SyncAppToNotionUseCase
-import com.example.vendorflow.logic.UpsertCollectionUseCase
 import com.example.vendorflow.logic.UpsertProductUseCase
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class CatalogViewModel(
-//    private val vendorRepository: VendorRepository,
     private val upsertProductUseCase: UpsertProductUseCase,
     private val deleteProductUseCase: DeleteProductUseCase,
     private val syncAppToNotionUseCase: SyncAppToNotionUseCase,
-    private val getProductsOrderedByNameUseCase: GetProductsOrderedByNameUseCase,
+    getProductsOrderedByNameUseCase: GetProductsOrderedByNameUseCase,
     private val getProductUseCase: GetProductUseCase,
     private val getCollectionUseCase: GetCollectionUseCase
 ): ViewModel() {
 
-    private val _sortType: MutableStateFlow<SortType> = MutableStateFlow(value = SortType.NAME)
-
-    private val _catalogList: StateFlow<List<Product>> = _sortType
-        .flatMapLatest { sortType ->
-            when (sortType) {
-//                SortType.NAME -> vendorRepository.getProductsOrderedByName()
-                SortType.NAME -> getProductsOrderedByNameUseCase()
-//                SortType.BARCODE -> vendorRepository.getProductsOrderedByBarcode()
-//                SortType.PRICE -> vendorRepository.getProductsOrderedByPrice()
-//                SortType.COST -> vendorRepository.getProductsOrderedByCost()
-            }
-        }
+    private val _catalogList: StateFlow<List<Product>> = getProductsOrderedByNameUseCase()
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),
@@ -58,12 +39,10 @@ class CatalogViewModel(
     private val _state: MutableStateFlow<CatalogState> = MutableStateFlow(value = CatalogState())
     val state: StateFlow<CatalogState> = combine(
         flow = _state,
-        flow2 = _sortType,
-        flow3 = _catalogList,
-        transform = { state, sortType, catalogList ->
+        flow2 = _catalogList,
+        transform = { state, catalogList ->
             state.copy(
-                catalogList = catalogList,
-                sortType = sortType
+                catalogList = catalogList
             )
         }
     )
@@ -91,7 +70,6 @@ class CatalogViewModel(
                                 catalogItemId = catalogEvent.item.productId,
                                 productImageUri = catalogEvent.item.image,
                                 productNameField = catalogEvent.item.productName,
-//                                collectionField = if (vendorRepository.getCollectionNameFromCollectionId(collectionId = catalogEvent.item.collectionId) == null) "Miscellaneous" else vendorRepository.getCollectionNameFromCollectionId(collectionId = catalogEvent.item.collectionId)!!,
                                 collectionField = if (getCollectionUseCase(collectionId = catalogEvent.item.collectionId) == null) "Miscellaneous" else getCollectionUseCase(collectionId = catalogEvent.item.collectionId)!!.collectionName,
                                 priceField = catalogEvent.item.price.toString(),
                                 costField = catalogEvent.item.cost.toString()
@@ -172,11 +150,9 @@ class CatalogViewModel(
                         }
                     }
 
-//                    var collectionId: Int? = vendorRepository.getCollectionIdFromCollectionName(collectionName = collectionName)
                     var collectionId: Int? = getCollectionUseCase(collectionName = collectionName)?.collectionId
                     if (collectionId == null) {
                         Log.i("CatalogViewModel.kt","Collection does not exist...")
-//                        collectionId = vendorRepository.getMiscellaneousCollectionId()
                         collectionId = getCollectionUseCase(collectionName = "Miscellaneous")?.collectionId
                     }
 
@@ -193,7 +169,6 @@ class CatalogViewModel(
                         cost = "0"
                     }
 
-
                     val product = Product(
                         productId = if (_state.value.catalogItemId == null) 0 else _state.value.catalogItemId!!,
                         productName = productName,
@@ -201,14 +176,10 @@ class CatalogViewModel(
                         image = imageUri,
                         price = price.toFloat(),
                         cost = cost.toFloat(),
-//                        stock = if (_state.value.catalogItemId == null) 0 else vendorRepository.getStockFromProductId(productId = _state.value.catalogItemId!!),
                         stock = if (_state.value.catalogItemId == null) 0 else getProductUseCase(productId = _state.value.catalogItemId!!).stock,
                     )
 
                     Log.i("CatalogViewModel.kt","Upserting $product to database...")
-//                    vendorRepository.upsertProduct(
-//                        product = product
-//                    )
                     upsertProductUseCase(product = product)
 
                     _state.update {
@@ -225,13 +196,9 @@ class CatalogViewModel(
             }
             is CatalogEvent.DeleteCatalogItem -> {
                 viewModelScope.launch {
-//                    vendorRepository.deleteProduct(
-//                        product = catalogEvent.item
-//                    )
                     deleteProductUseCase(product = catalogEvent.item)
                 }
             }
-
         }
     }
 }

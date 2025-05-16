@@ -37,7 +37,6 @@ class ViewModelFactory(
             }
             modelClass.isAssignableFrom(TransactionViewModel::class.java) -> {
                 TransactionViewModel(
-//                    vendorRepository,
                     UpsertProductUseCase(vendorRepository),
                     InsertTransactionUseCase(vendorRepository),
                     GetCollectionsOrderedByIdUseCase(vendorRepository),
@@ -46,7 +45,6 @@ class ViewModelFactory(
             }
             modelClass.isAssignableFrom(InventoryViewModel::class.java) -> {
                 InventoryViewModel(
-//                    vendorRepository,
                     UpsertProductUseCase(vendorRepository),
                     GetProductsOrderedByNameUseCase(vendorRepository),
                     GetInventoryPriceUseCase(vendorRepository),
@@ -55,7 +53,6 @@ class ViewModelFactory(
             }
             modelClass.isAssignableFrom(CatalogViewModel::class.java) -> {
                 CatalogViewModel(
-//                    vendorRepository,
                     UpsertProductUseCase(vendorRepository),
                     DeleteProductUseCase(vendorRepository),
                     SyncAppToNotionUseCase(vendorRepository, notionRepository, GetProductUseCase(vendorRepository)),
@@ -66,7 +63,6 @@ class ViewModelFactory(
             }
             modelClass.isAssignableFrom(CollectionsViewModel::class.java) -> {
                 CollectionsViewModel(
-//                    vendorRepository,
                     UpsertCollectionUseCase(vendorRepository),
                     DeleteCollectionUseCase(vendorRepository),
                     GetCollectionsOrderedByIdUseCase(vendorRepository)
@@ -74,7 +70,6 @@ class ViewModelFactory(
             }
             modelClass.isAssignableFrom(SalesViewModel::class.java) -> {
                 SalesViewModel(
-//                    vendorRepository,
                     GetSalesUseCase(vendorRepository),
                     GetSoldItemsGroupedBySaleUseCase(vendorRepository)
                 ) as T

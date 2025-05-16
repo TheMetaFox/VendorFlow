@@ -96,18 +96,6 @@ class MainActivity : ComponentActivity() {
                 val snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
                 val coroutineScope: CoroutineScope = rememberCoroutineScope()
 
-                LaunchedEffect("") {
-                    coroutineScope.launch {
-//                        Log.i("MainActivity.kt", NotionApi.getUsers().toString().prettyPrint())
-//                        Log.i("MainActivity.kt", NotionApi.getDatabaseTest().prettyPrint())
-//                        Log.i("MainActivity.kt", NotionApi.getDatabaseQueryTest().prettyPrint())
-
-//                        Log.i("MainActivity.kt", NotionApi.getProductCatalogDatabase().prettyPrint())
-//                        Log.i("MainActivity.kt", NotionApi.queryProductCatalogDatabase().prettyPrint())
-                    }
-                    return@LaunchedEffect
-                }
-
                 NavGraph(
                     snackbarHostState = snackbarHostState,
                     coroutineScope = coroutineScope,

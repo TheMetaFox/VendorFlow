@@ -1,6 +1,5 @@
 package com.example.vendorflow.ui.screens.catalog
 
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts

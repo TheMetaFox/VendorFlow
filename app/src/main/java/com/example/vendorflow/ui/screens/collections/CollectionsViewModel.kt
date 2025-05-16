@@ -3,7 +3,6 @@ package com.example.vendorflow.ui.screens.collections
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.vendorflow.data.VendorRepository
 import com.example.vendorflow.data.room.entities.Collection
 import com.example.vendorflow.logic.DeleteCollectionUseCase
 import com.example.vendorflow.logic.GetCollectionsOrderedByIdUseCase
@@ -19,7 +18,7 @@ import kotlinx.coroutines.launch
 class CollectionsViewModel(
     private val upsertCollectionUseCase: UpsertCollectionUseCase,
     private val deleteCollectionUseCase: DeleteCollectionUseCase,
-    private val getCollectionsOrderedByIdUseCase: GetCollectionsOrderedByIdUseCase,
+    getCollectionsOrderedByIdUseCase: GetCollectionsOrderedByIdUseCase,
 ): ViewModel() {
     private val _collectionList: StateFlow<List<Collection>> = getCollectionsOrderedByIdUseCase()
         .stateIn(
@@ -105,9 +104,6 @@ class CollectionsViewModel(
             }
             is CollectionsEvent.DeleteCollection -> {
                 viewModelScope.launch {
-//                    vendorRepository.deleteCollection(
-//                        collection = collectionsEvent.collection
-//                    )
                     deleteCollectionUseCase(collection = collectionsEvent.collection)
                 }
             }

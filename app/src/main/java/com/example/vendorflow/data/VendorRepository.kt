@@ -43,28 +43,8 @@ class VendorRepository(private val vendorDao: VendorDao) {
         return vendorDao.deleteProduct(productId = product.productId)
     }
 
-    suspend fun increaseProductStock(product: Product) {
-        return vendorDao.updateProduct(product = product.copy(stock = product.stock+1))
-    }
-
-    suspend fun decreaseProductStock(product: Product) {
-        return vendorDao.updateProduct(product = product.copy(stock = product.stock-1))
-    }
-
     fun getProductsOrderedByName(): Flow<List<Product>> {
         return vendorDao.getProductsOrderedByName()
-    }
-
-    fun getProductsOrderedByBarcode(): Flow<List<Product>> {
-        return vendorDao.getProductsOrderedByBarcode()
-    }
-
-    fun getProductsOrderedByPrice(): Flow<List<Product>> {
-        return vendorDao.getProductsOrderedByPrice()
-    }
-
-    fun getProductsOrderedByCost(): Flow<List<Product>> {
-        return vendorDao.getProductsOrderedByCost()
     }
 
     fun getCollectionsOrderedById(): Flow<List<Collection>> {
@@ -103,37 +83,6 @@ class VendorRepository(private val vendorDao: VendorDao) {
 
     suspend fun getCollectionFromCollectionName(collectionName: String): Collection {
         return vendorDao.getCollectionFromCollectionName(collectionName = collectionName)
-    }
-
-    suspend fun getCollectionNameFromCollectionId(collectionId: Int): String? {
-        Log.i("VendorRepository.kt", "Getting Collection #$collectionId name...")
-        return vendorDao.getCollectionNameFromCollectionId(collectionId = collectionId)
-    }
-
-    suspend fun getCollectionIdFromCollectionName(collectionName: String): Int? {
-        Log.i("VendorRepository.kt", "Getting $collectionName's id...")
-        return vendorDao.getCollectionIdFromCollectionName(collectionName = collectionName)
-    }
-
-    suspend fun getStockFromProductId(productId: Int): Int {
-        Log.i("VendorRepository.kt", "Getting product $productId's stock...")
-        return vendorDao.getStockFromProductId(productId = productId)
-    }
-
-    suspend fun getMiscellaneousCollectionId(): Int {
-        Log.i("VendorRepository.kt", "Getting miscellaneous collection id...")
-        if (vendorDao.getCollectionIdFromCollectionName(collectionName = "Miscellaneous") == null) {
-            createMiscellaneousCollectionIfNotExist()
-        }
-        return vendorDao.getCollectionIdFromCollectionName(collectionName = "Miscellaneous")!!
-    }
-
-    private suspend inline fun createMiscellaneousCollectionIfNotExist() {
-        if (vendorDao.getCollectionIdFromCollectionName("Miscellaneous") == null) {
-            vendorDao.upsertCollection(
-                Collection("Miscellaneous")
-            )
-        }
     }
 
 

@@ -51,7 +51,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
-import com.example.vendorflow.data.SortType
 import com.example.vendorflow.data.room.entities.Product
 import com.example.vendorflow.ui.theme.VendorFlowTheme
 import java.util.Locale
@@ -288,12 +287,9 @@ fun CatalogScreen(
 @Composable
 fun CatalogScreenPreview() {
     VendorFlowTheme {
-
-
         val product = Product(
             productId = 1,
             productName = "Hello Kitty Kandi",
-//            collectionName = "Sanrio Collection",
             collectionId = 0,
             image = Uri.EMPTY,
             price = 2f,
@@ -306,8 +302,7 @@ fun CatalogScreenPreview() {
             catalogState = CatalogState(
                 catalogList = listOf(
                     product
-                ),
-                sortType = SortType.NAME
+                )
             )
         )
     }

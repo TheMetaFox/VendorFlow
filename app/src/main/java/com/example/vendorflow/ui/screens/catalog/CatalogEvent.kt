@@ -2,9 +2,7 @@ package com.example.vendorflow.ui.screens.catalog
 
 import android.content.Context
 import android.net.Uri
-import com.example.vendorflow.data.room.entities.Collection
 import com.example.vendorflow.data.room.entities.Product
-import com.example.vendorflow.ui.screens.collections.CollectionsEvent
 
 sealed interface CatalogEvent {
     data class ShowCatalogItemDialog(val item: Product?): CatalogEvent

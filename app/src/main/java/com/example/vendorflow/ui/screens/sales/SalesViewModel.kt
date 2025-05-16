@@ -2,7 +2,6 @@ package com.example.vendorflow.ui.screens.sales
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.vendorflow.data.VendorRepository
 import com.example.vendorflow.logic.GetSalesUseCase
 import com.example.vendorflow.logic.GetSoldItemsGroupedBySaleUseCase
 import kotlinx.coroutines.flow.MutableStateFlow

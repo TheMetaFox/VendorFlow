@@ -12,4 +12,6 @@ data class CatalogState(
     val collectionField: String = "",
     val priceField: String = "",
     val costField: String = "",
+    val isShowingConfirmationDialog: Boolean = false,
+    val syncSource: SyncSource = SyncSource.VENDOR_FLOW
 )

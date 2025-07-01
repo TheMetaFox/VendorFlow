@@ -7,10 +7,11 @@ import com.example.vendorflow.data.notion.serializable.ProductCatalogPages
 import com.example.vendorflow.data.room.entities.Product
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class SyncAppToNotionUseCase @Inject constructor(
+class SyncNotionToAppUseCase @Inject constructor(
     val vendorRepository: VendorRepository,
     private val notionRepository: NotionRepository,
     val getProductUseCase: GetProductUseCase,
@@ -18,19 +19,14 @@ class SyncAppToNotionUseCase @Inject constructor(
 ) {
     suspend operator fun invoke() {
         withContext(defaultDispatcher) {
+
             val productCatalogPages: ProductCatalogPages = notionRepository.getProductCatalogPages()
             productCatalogPages.results.forEach { page ->
                 if (getProductUseCase(productName = page.properties.name.title!![0].plainText) == null) {
-                    Log.i("SyncAppToNotionUseCase.kt", "${page.properties.name.title!![0].plainText} does not exist in Vendor Flow")
+                    Log.i("SyncNotionToAppUseCase.kt", "${page.properties.name.title!![0].plainText} does not exist in Vendor Flow")
                     return@forEach
                 }
-                vendorRepository.upsertProduct(
-                    product = getProductUseCase(productName = page.properties.name.title!![0].plainText)!!.copy(
-                        price = page.properties.price.number!!,
-                        cost = page.properties.cost.number!!,
-                        stock = page.properties.stock.number!!.toInt()
-                    )
-                )
+                notionRepository.updatePageProperties(pageId = page.id, stock = getProductUseCase(productName = page.properties.name.title!![0].plainText)!!.stock)//(pageId = "1b26e753951b803d9ed8efa25ec0a46b", stock = 69)
             }
         }
     }

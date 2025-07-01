@@ -70,6 +70,11 @@ fun CatalogScreen(
             onCatalogEvent = onCatalogEvent,
             catalogState = catalogState
         )
+    } else if (catalogState.isShowingConfirmationDialog) {
+        SyncConfirmationDialog(
+            onCatalogEvent = onCatalogEvent,
+            catalogState = catalogState
+        )
     }
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -106,7 +111,7 @@ fun CatalogScreen(
                         DropdownMenuItem(
                             text = { Text("Update Vendor Flow") },
                             onClick = {
-                                onCatalogEvent(CatalogEvent.UpdateVendorFlow)
+                                onCatalogEvent(CatalogEvent.ShowConfirmationDialog(SyncSource.NOTION))
                                 showDropDownMenu = false
                             },
                             leadingIcon = { Icon(Icons.Outlined.Info, "info") }
@@ -114,7 +119,7 @@ fun CatalogScreen(
                         DropdownMenuItem(
                             text = { Text("Update Notion") },
                             onClick = {
-                                onCatalogEvent(CatalogEvent.UpdateNotion)
+                                onCatalogEvent(CatalogEvent.ShowConfirmationDialog(SyncSource.VENDOR_FLOW))
                                 showDropDownMenu = false
                             },
                             leadingIcon = { Icon(Icons.Outlined.Feedback, "feedback") }

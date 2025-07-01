@@ -9,4 +9,5 @@ object HttpRoutes {
     const val PRODUCT_CATALOG = BASE_DATABASES_URL + PRODUCT_CATALOG_ID
     const val PROJECTS_AND_TASKS = BASE_DATABASES_URL + PROJECTS_AND_TASKS_ID
     const val USERS = BASE_USERS_URL
+    const val BASE_PAGES_URL = "https://api.notion.com/v1/pages/"
 }

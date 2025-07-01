@@ -30,6 +30,9 @@ interface VendorDao {
     @Update
     suspend fun updateProduct(product: Product)
 
+    @Query("SELECT * FROM product ORDER BY productId")
+    suspend fun getProducts(): List<Product>
+
     @Query("DELETE FROM collection WHERE collectionId == :collectionId")
     suspend fun deleteCollection(collectionId: Int)
 

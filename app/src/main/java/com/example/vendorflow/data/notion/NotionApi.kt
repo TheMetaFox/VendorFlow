@@ -3,13 +3,18 @@ package com.example.vendorflow.data.notion
 import android.util.Log
 import com.example.vendorflow.data.notion.serializable.ProductCatalogDatabase
 import com.example.vendorflow.data.notion.serializable.ProductCatalogPages
+import com.example.vendorflow.data.notion.serializable.Properties
 import com.example.vendorflow.data.notion.serializable.Users
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
+import io.ktor.client.request.parameter
+import io.ktor.client.request.patch
 import io.ktor.client.request.post
-import io.ktor.client.statement.HttpResponse
-import io.ktor.http.isSuccess
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
+import io.ktor.http.parameters
 
 class NotionApi(private val client: HttpClient) {
 
@@ -34,8 +39,18 @@ class NotionApi(private val client: HttpClient) {
         return client.get(HttpRoutes.PRODUCT_CATALOG).body<ProductCatalogDatabase>()
     }
 
-    suspend fun getDatabaseQueryTest(): ProductCatalogPages {
+    suspend fun queryDatabase(): ProductCatalogPages {
         return client.post(HttpRoutes.PRODUCT_CATALOG + "/query").body<ProductCatalogPages>()
+    }
+
+    suspend fun updatePageProperties(pageId: String, stock: Int) {
+        val response = client.patch(HttpRoutes.BASE_PAGES_URL + pageId) {
+            parameters {
+                contentType(ContentType.Application.Json)
+                setBody(Properties(Properties.Property(Properties.Property.Number(value = stock))))
+            }
+        }
+        Log.i("NotionApi.kt", response.toString() + "\n" + response.body<String>())
     }
 
     suspend fun getProductCatalogDatabase(): ProductCatalogDatabase {

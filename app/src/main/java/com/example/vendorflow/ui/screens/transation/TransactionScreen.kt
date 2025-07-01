@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -149,7 +150,7 @@ fun TransactionScreen(
                 }
                 if (selected == collection.collectionName) {
                     LazyVerticalGrid(
-                        columns = GridCells.Adaptive(minSize = 128.dp),
+                        columns = GridCells.Adaptive(minSize = 100.dp),
                         modifier = Modifier
                             .wrapContentHeight()
                             .heightIn(0.dp, 2000.dp)
@@ -184,7 +185,8 @@ fun TransactionScreen(
                                             imageVector = Icons.Default.ShoppingBag,
                                             contentDescription = "product image",
                                             modifier = Modifier
-                                                .size(128.dp)
+                                                .aspectRatio(1f)
+                                                .fillMaxWidth()
                                         )
                                         Image(
                                             painter = rememberAsyncImagePainter(
@@ -192,8 +194,10 @@ fun TransactionScreen(
                                                 contentScale = ContentScale.Crop
                                             ),
                                             contentDescription = "product image",
-                                            modifier = Modifier.size(128.dp),
-                                            contentScale = ContentScale.Crop
+                                            modifier = Modifier
+                                                .aspectRatio(1f)
+                                                .fillMaxWidth(),
+                                            contentScale = ContentScale.Crop,
                                         )
                                     }
                                     Column(
@@ -207,7 +211,8 @@ fun TransactionScreen(
                                             text = product.productName,
                                             modifier = Modifier
                                                 .fillMaxWidth(),
-                                            fontSize = 14.sp
+                                            fontSize = 14.sp,
+                                            minLines = 2
                                         )
                                         Row(
                                             horizontalArrangement = Arrangement.spacedBy(5.dp),

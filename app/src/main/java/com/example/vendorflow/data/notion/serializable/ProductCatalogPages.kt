@@ -15,7 +15,7 @@ data class ProductCatalogPages(
     @Serializable
     data class ProductPage(
 //        var `object`: String,
-//        var id: String,
+        var id: String,
         var properties: ProductProperties,
 //        var url: String
     ) {

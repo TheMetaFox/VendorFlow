@@ -13,4 +13,6 @@ sealed interface CatalogEvent {
     data class UpdateImageField(val imageUri: Uri): CatalogEvent
     data class UpsertCatalogItem(val context: Context): CatalogEvent
     data class DeleteCatalogItem(val item: Product): CatalogEvent
+    data class ShowConfirmationDialog(val source: SyncSource): CatalogEvent
+    data object HideConfirmationDialog: CatalogEvent
 }

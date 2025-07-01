@@ -10,6 +10,10 @@ class NotionRepository(private val notionApi: NotionApi) {
     }
 
     suspend fun getProductCatalogPages(): ProductCatalogPages {
-        return notionApi.getDatabaseQueryTest()
+        return notionApi.queryDatabase()
+    }
+
+    suspend fun updatePageProperties(pageId: String, stock: Int) {
+        return notionApi.updatePageProperties(pageId = pageId, stock = stock)
     }
 }

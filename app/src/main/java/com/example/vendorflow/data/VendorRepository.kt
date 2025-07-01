@@ -27,6 +27,10 @@ class VendorRepository(private val vendorDao: VendorDao) {
         }
     }
 
+    suspend fun getProducts(): List<Product> {
+        return vendorDao.getProducts()
+    }
+
     suspend fun upsertProduct(product: Product) {
         return vendorDao.upsertProduct(product = product)
     }

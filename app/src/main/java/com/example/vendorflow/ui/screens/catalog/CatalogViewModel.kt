@@ -11,6 +11,7 @@ import com.example.vendorflow.logic.GetCollectionUseCase
 import com.example.vendorflow.logic.GetProductUseCase
 import com.example.vendorflow.logic.GetProductsOrderedByNameUseCase
 import com.example.vendorflow.logic.SyncAppToNotionUseCase
+import com.example.vendorflow.logic.SyncNotionToAppUseCase
 import com.example.vendorflow.logic.UpsertProductUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -24,6 +25,7 @@ class CatalogViewModel(
     private val upsertProductUseCase: UpsertProductUseCase,
     private val deleteProductUseCase: DeleteProductUseCase,
     private val syncAppToNotionUseCase: SyncAppToNotionUseCase,
+    private val syncNotionToAppUseCase: SyncNotionToAppUseCase,
     getProductsOrderedByNameUseCase: GetProductsOrderedByNameUseCase,
     private val getProductUseCase: GetProductUseCase,
     private val getCollectionUseCase: GetCollectionUseCase
@@ -95,11 +97,25 @@ class CatalogViewModel(
                 }
             }
             is CatalogEvent.UpdateVendorFlow -> {
+                _state.update {
+                    it.copy(
+                        syncSource = SyncSource.NOTION
+                    )
+                }
                 viewModelScope.launch {
                     syncAppToNotionUseCase()
                 }
             }
-            is CatalogEvent.UpdateNotion -> TODO()
+            is CatalogEvent.UpdateNotion -> {
+                _state.update {
+                    it.copy(
+                        syncSource = SyncSource.VENDOR_FLOW
+                    )
+                }
+                viewModelScope.launch {
+                    syncNotionToAppUseCase()
+                }
+            }
             is CatalogEvent.UpdateTextField -> {
                 when (catalogEvent.textField) {
                     "Name" -> {
@@ -197,6 +213,21 @@ class CatalogViewModel(
             is CatalogEvent.DeleteCatalogItem -> {
                 viewModelScope.launch {
                     deleteProductUseCase(product = catalogEvent.item)
+                }
+            }
+
+            CatalogEvent.HideConfirmationDialog -> {
+                _state.update {
+                    it.copy(isShowingConfirmationDialog = false
+                    )
+                }
+            }
+            is CatalogEvent.ShowConfirmationDialog -> {
+                _state.update {
+                    it.copy(
+                        isShowingConfirmationDialog = true,
+                        syncSource = catalogEvent.source
+                    )
                 }
             }
         }

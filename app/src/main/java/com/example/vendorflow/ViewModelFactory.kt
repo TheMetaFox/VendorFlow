@@ -16,6 +16,7 @@ import com.example.vendorflow.logic.GetSalesUseCase
 import com.example.vendorflow.logic.GetSoldItemsGroupedBySaleUseCase
 import com.example.vendorflow.logic.InsertTransactionUseCase
 import com.example.vendorflow.logic.SyncAppToNotionUseCase
+import com.example.vendorflow.logic.SyncNotionToAppUseCase
 import com.example.vendorflow.logic.UpsertCollectionUseCase
 import com.example.vendorflow.logic.UpsertProductUseCase
 import com.example.vendorflow.ui.screens.catalog.CatalogViewModel
@@ -56,6 +57,7 @@ class ViewModelFactory(
                     UpsertProductUseCase(vendorRepository),
                     DeleteProductUseCase(vendorRepository),
                     SyncAppToNotionUseCase(vendorRepository, notionRepository, GetProductUseCase(vendorRepository)),
+                    SyncNotionToAppUseCase(vendorRepository, notionRepository, GetProductUseCase(vendorRepository)),
                     GetProductsOrderedByNameUseCase(vendorRepository),
                     GetProductUseCase(vendorRepository),
                     GetCollectionUseCase(vendorRepository)

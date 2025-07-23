@@ -33,10 +33,10 @@ abstract class VendorDatabase: RoomDatabase() {
     class Migration3to4: AutoMigrationSpec
 
     companion object {
-        val migration4to5 = object : Migration(4, 5) {
+        val migration4to5 = object : Migration(startVersion = 4, endVersion = 5) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL(
-                    """
+                    sql = """
                     CREATE TABLE IF NOT EXISTS `Collection` (
                         `collectionId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                         `collectionName` TEXT NOT NULL
@@ -44,7 +44,7 @@ abstract class VendorDatabase: RoomDatabase() {
                     """.trimIndent()
                 )
                 db.execSQL(
-                    """
+                    sql = """
                     CREATE TABLE IF NOT EXISTS `ProductCollection` (
                         `productCollectionId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                         `productId` INTEGER NOT NULL,
@@ -54,10 +54,10 @@ abstract class VendorDatabase: RoomDatabase() {
                 )
             }
         }
-        val migration5to6 = object : Migration(5, 6) {
+        val migration5to6 = object : Migration(startVersion = 5, endVersion = 6) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL(
-                    """
+                    sql = """
                         CREATE TABLE IF NOT EXISTS `New_Product` (
                             `productId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
                             `productName` TEXT NOT NULL, 
@@ -70,27 +70,27 @@ abstract class VendorDatabase: RoomDatabase() {
                     """.trimIndent()
                 )
                 db.execSQL(
-                    """
+                    sql = """
                         INSERT INTO `New_Product` (`productName`, `collectionId`, `image`, `price`, `cost`, `stock`) 
                         SELECT `productName`, `collectionId`, `image`, `price`, `cost`, `stock` FROM `Product`;
                     """.trimIndent()
                 )
                 db.execSQL(
-                    """
+                    sql = """
                         DROP TABLE `Product`;
                     """.trimIndent()
                 )
                 db.execSQL(
-                    """
+                    sql = """
                         ALTER TABLE `New_Product` RENAME TO `Product`;
                     """.trimIndent()
                 )
             }
         }
-        val migration6to7 = object : Migration(6, 7) {
+        val migration6to7 = object : Migration(startVersion = 6, endVersion = 7) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL(
-                    """
+                    sql = """
                         CREATE TABLE IF NOT EXISTS `New_Product` (
                             `productId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
                             `productName` TEXT NOT NULL, 
@@ -103,20 +103,44 @@ abstract class VendorDatabase: RoomDatabase() {
                     """.trimIndent()
                 )
                 db.execSQL(
-                    """
+                    sql = """
                         INSERT INTO `New_Product` (`productName`, `collectionId`, `image`, `price`, `cost`, `stock`) 
                         SELECT `productName`, `collectionId`, `image`, `price`, `cost`, `stock` FROM `Product`;
                     """.trimIndent()
                 )
                 db.execSQL(
-                    """
+                    sql = """
                         DROP TABLE `Product`;
                     """.trimIndent()
                 )
                 db.execSQL(
-                    """
+                    sql = """
                         ALTER TABLE `New_Product` RENAME TO `Product`;
                     """.trimIndent()
+                )
+            }
+        }
+        val migration7to8 = object : Migration(startVersion = 7, endVersion = 8) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    sql = """
+                        DROP TABLE `Collection`;
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    sql = """
+                        DROP TABLE `ProductCollection`;
+                    """.trimIndent(),
+                )
+                db.execSQL(
+                    sql = """
+                        
+                    """.trimIndent(),
+                )
+                db.execSQL(
+                    sql = """
+                        
+                    """.trimIndent(),
                 )
             }
         }

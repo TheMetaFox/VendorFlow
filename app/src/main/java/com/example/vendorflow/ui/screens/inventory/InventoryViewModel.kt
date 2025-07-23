@@ -12,34 +12,16 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class InventoryViewModel(
-//    private val vendorRepository: VendorRepository,
     private val upsertProductUseCase: UpsertProductUseCase,
     getProductsOrderedByNameUseCase: GetProductsOrderedByNameUseCase,
     getInventoryPriceUseCase: GetInventoryPriceUseCase,
     getInventoryCostUseCase: GetInventoryCostUseCase
 ): ViewModel() {
 
-//    private val _inventoryList: StateFlow<List<Product>> = vendorRepository.getProductsOrderedByName()
-//        .stateIn(
-//            scope = viewModelScope,
-//            started = SharingStarted.WhileSubscribed(),
-//            initialValue = emptyList()
-//        )
-//    private val _totalInventoryPrice: StateFlow<Float> = vendorRepository.getTotalInventoryPrice()
-//        .stateIn(
-//            scope = viewModelScope,
-//            started = SharingStarted.WhileSubscribed(),
-//            initialValue = 0f
-//        )
-//    private val _totalInventoryCost: StateFlow<Float> = vendorRepository.getTotalInventoryCost()
-//        .stateIn(
-//            scope = viewModelScope,
-//            started = SharingStarted.WhileSubscribed(),
-//            initialValue = 0f
-//        )
     private val _inventoryList: StateFlow<List<Product>> = getProductsOrderedByNameUseCase()
         .stateIn(
             scope = viewModelScope,
@@ -68,7 +50,9 @@ class InventoryViewModel(
         flow4 = _totalInventoryCost,
         transform = { state, inventoryList, totalInventoryPrice, totalInventoryCost ->
             state.copy(
-                inventoryList = inventoryList,
+                inventoryList = inventoryList.filter {
+                    state.searchText.isBlank() or it.productName.contains(other = state.searchText, ignoreCase = true)
+                },
                 totalInventoryPrice = totalInventoryPrice,
                 totalInventoryCost = totalInventoryCost
             )
@@ -84,7 +68,6 @@ class InventoryViewModel(
         when (inventoryEvent) {
             is InventoryEvent.IncreaseProductStock -> {
                 viewModelScope.launch {
-//                    vendorRepository.increaseProductStock(product = inventoryEvent.product)
                     upsertProductUseCase(
                         product = inventoryEvent.product.copy(
                             stock = inventoryEvent.product.stock + 1
@@ -95,13 +78,21 @@ class InventoryViewModel(
             is InventoryEvent.DecreaseProductStock -> {
                 viewModelScope.launch {
                     if (inventoryEvent.product.stock == 0) return@launch
-//                    vendorRepository.decreaseProductStock(product = inventoryEvent.product)
                     upsertProductUseCase(
                         product = inventoryEvent.product.copy(
                             stock = inventoryEvent.product.stock - 1
                         )
                     )
                     upsertProductUseCase
+                }
+            }
+            is InventoryEvent.UpdateSearchField -> {
+                viewModelScope.launch {
+                    _state.update {
+                        it.copy(
+                            searchText = inventoryEvent.text
+                        )
+                    }
                 }
             }
         }

@@ -24,12 +24,14 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -78,10 +80,11 @@ fun InventoryScreen(
                 .padding(paddingValues = innerPadding)
                 .padding(start = 10.dp, top = 10.dp, end = 10.dp)
                 .fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+            verticalArrangement = Arrangement.Top
         ) {
             Row(
                 modifier = Modifier
+                    .padding(bottom = 10.dp)
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
@@ -111,6 +114,12 @@ fun InventoryScreen(
                     Text(text = String.format(Locale.ENGLISH, "\$%.2f", (inventoryState.totalInventoryPrice - inventoryState.totalInventoryCost)), fontSize = 18.sp)
                 }
             }
+            TextField(
+                value = inventoryState.searchText,
+                onValueChange = { onInventoryEvent(InventoryEvent.UpdateSearchField(text = it))},
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
             LazyColumn {
                 items(inventoryState.inventoryList.size) {
                     val inventoryItem: Product = inventoryState.inventoryList[it]
@@ -151,7 +160,9 @@ fun InventoryScreen(
                                 ) {
                                     Text(
                                         text = String.format(Locale.ENGLISH, "%03d", inventoryItem.productId),
-                                        fontSize = 10.sp
+                                        color = MaterialTheme.colorScheme.primary,
+                                        fontSize = 10.sp,
+                                        fontStyle = FontStyle.Italic
                                     )
                                     Text(
                                         text = inventoryItem.productName,

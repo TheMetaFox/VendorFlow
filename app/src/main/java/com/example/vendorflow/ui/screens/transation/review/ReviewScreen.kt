@@ -36,6 +36,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -100,101 +101,101 @@ fun ReviewScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(5.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                        Box(
+                            modifier = Modifier
+                                .padding(end = 5.dp)
                         ) {
-                            Box {
-                                Image(
-                                    imageVector = Icons.Default.ShoppingBag,
-                                    contentDescription = "product image",
-                                    modifier = Modifier.size(100.dp)
-                                )
-                                Image(
-                                    painter = rememberAsyncImagePainter(
-                                        model = product.image,
-                                        contentScale = ContentScale.Crop
-                                    ),
-                                    contentDescription = "product image",
-                                    modifier = Modifier.size(100.dp),
+                            Image(
+                                imageVector = Icons.Default.ShoppingBag,
+                                contentDescription = "product image",
+                                modifier = Modifier.size(100.dp)
+                            )
+                            Image(
+                                painter = rememberAsyncImagePainter(
+                                    model = product.image,
                                     contentScale = ContentScale.Crop
+                                ),
+                                contentDescription = "product image",
+                                modifier = Modifier.size(100.dp),
+                                contentScale = ContentScale.Crop
+                            )
+                        }
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth(0.8f),
+                            verticalArrangement = Arrangement.spacedBy(10.dp),
+                            horizontalAlignment = Alignment.Start
+                        ) {
+                            Column {
+                                Text(
+                                    text = product.productName,
+                                    fontSize = 20.sp
+                                )
+                                Text(
+                                    text = String.format(Locale.ENGLISH, "%.2f", product.price),
+                                    fontSize = 18.sp
                                 )
                             }
-                            Column(
-                                verticalArrangement = Arrangement.spacedBy(10.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(5.dp),
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Column {
-                                    Text(
-                                        text = product.productName,
-                                        fontSize = 20.sp
-                                    )
-                                    Text(
-                                        text = String.format(Locale.ENGLISH, "\$%.2f", product.price),
-                                        fontSize = 18.sp
-                                    )
-                                }
-                                Row(
-                                    horizontalArrangement = Arrangement.spacedBy(5.dp),
-                                    verticalAlignment = Alignment.CenterVertically
+                                Button(
+                                    onClick = {
+                                        onTransactionEvent(TransactionEvent.DecreaseItemQuantity(product = product))
+                                        onTransactionEvent(TransactionEvent.CalculateTotal)
+                                    },
+                                    modifier = Modifier
+                                        .size(size = 30.dp),
+                                    enabled = (transactionState.itemQuantityList.containsKey(product)),
+                                    contentPadding = PaddingValues(all = 0.dp)
                                 ) {
-                                    Button(
-                                        onClick = {
-                                            onTransactionEvent(TransactionEvent.DecreaseItemQuantity(product = product))
-                                            onTransactionEvent(TransactionEvent.CalculateTotal)
-                                        },
+                                    Icon(
+                                        imageVector = Icons.Outlined.Remove,
+                                        contentDescription = "Decrease Quantity",
                                         modifier = Modifier
-                                            .size(size = 30.dp),
-                                        enabled = (transactionState.itemQuantityList.containsKey(product)),
-                                        contentPadding = PaddingValues(all = 0.dp)
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Outlined.Remove,
-                                            contentDescription = "Decrease Quantity",
-                                            modifier = Modifier
-                                                .size(size = 25.dp)
+                                            .size(size = 25.dp)
                                         )
                                     }
-                                    Text(
-                                        text = quantity.toString(),
-                                        fontSize = 16.sp
-                                    )
-                                    Button(
-                                        onClick = {
-                                            onTransactionEvent(TransactionEvent.IncreaseItemQuantity(product = product))
-                                            onTransactionEvent(TransactionEvent.CalculateTotal)
-                                            if (transactionState.itemQuantityList[product] == product.stock) {
-                                                coroutineScope.launch {
-                                                    snackbarHostState.showSnackbar(
-                                                        message = "Out Of Stock"
-                                                    )
-                                                }
+                                Text(
+                                    text = quantity.toString(),
+                                    fontSize = 16.sp
+                                )
+                                Button(
+                                    onClick = {
+                                        onTransactionEvent(TransactionEvent.IncreaseItemQuantity(product = product))
+                                        onTransactionEvent(TransactionEvent.CalculateTotal)
+                                        if (transactionState.itemQuantityList[product] == product.stock) {
+                                            coroutineScope.launch {
+                                                snackbarHostState.showSnackbar(
+                                                    message = "Out Of Stock"
+                                                )
                                             }
-                                        },
+                                        }
+                                    },
+                                    modifier = Modifier
+                                        .size(size = 30.dp),
+                                    enabled = ((transactionState.itemQuantityList[product] != product.stock) && (product.stock != 0)),
+                                    contentPadding = PaddingValues(all = 0.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Add,
+                                        contentDescription = "Increase Quantity",
                                         modifier = Modifier
-                                            .size(size = 30.dp),
-                                        enabled = ((transactionState.itemQuantityList[product] != product.stock) && (product.stock != 0)),
-                                        contentPadding = PaddingValues(all = 0.dp)
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Outlined.Add,
-                                            contentDescription = "Increase Quantity",
-                                            modifier = Modifier
-                                                .size(size = 25.dp)
-                                        )
-                                    }
+                                            .size(size = 25.dp)
+                                    )
                                 }
                             }
                         }
                         Text(
-                            text = String.format(Locale.ENGLISH, "\$%.2f", (product.price*quantity)),
-                            fontSize = 18.sp
+                            text = String.format(Locale.ENGLISH, "$%.2f", (product.price*quantity)),
+                            modifier = Modifier.fillMaxWidth(),
+                            fontSize = 18.sp,
+                            textAlign = TextAlign.Right
                         )
                     }
-                    
                 }
             }
             Column(
@@ -212,14 +213,15 @@ fun ReviewScreen(
                         fontSize = 36.sp
                     )
                     Text(
-                        text = String.format(Locale.ENGLISH, "\$%.2f", transactionState.totalAmount),
+                        text = String.format(Locale.ENGLISH, "%.2f", transactionState.totalAmount),
                         fontSize = 28.sp
                     )
                 }
                 val scrollState = rememberScrollState()
                 Row(
                     modifier = Modifier
-                        .height(height = 60.dp)
+//                        .height(height = 60.dp)
+                        .padding(vertical = 10.dp)
                         .horizontalScroll(
                             state = scrollState,
                         ),

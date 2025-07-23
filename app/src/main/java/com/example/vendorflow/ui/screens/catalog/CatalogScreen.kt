@@ -150,7 +150,7 @@ fun CatalogScreen(
         Column(
             modifier = Modifier
                 .padding(paddingValues = innerPadding)
-                .padding(all = 10.dp)
+                .padding(start = 10.dp, top = 10.dp, end = 10.dp)
                 .fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(10.dp),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -197,13 +197,13 @@ fun CatalogScreen(
                     val catalogItem: Product = catalogState.catalogList[it]
                     var isDropDownMenuVisible: Boolean by remember { mutableStateOf(false) }
                     var longPressOffset: DpOffset by remember { mutableStateOf(DpOffset.Zero) }
-                    val density: Density = LocalDensity.current
+//                    val density: Density = LocalDensity.current
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable {
-                                onCatalogEvent(CatalogEvent.ShowCatalogItemDialog(item = catalogItem))
-                            }
+//                            .clickable {
+//                                onCatalogEvent(CatalogEvent.ShowCatalogItemDialog(item = catalogItem))
+//                            }
                             .combinedClickable(
                                 onClick = {
                                     onCatalogEvent(CatalogEvent.ShowCatalogItemDialog(item = catalogItem))

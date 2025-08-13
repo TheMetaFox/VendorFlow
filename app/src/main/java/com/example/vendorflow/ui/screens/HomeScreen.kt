@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.vendorflow.ui.Screen
+import com.example.vendorflow.ui.screens.transation.TransactionEvent
 import com.example.vendorflow.ui.theme.VendorFlowTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -32,6 +33,7 @@ import com.example.vendorflow.ui.theme.VendorFlowTheme
 fun HomeScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
+    onTransactionEvent: (TransactionEvent) -> Unit,
     ) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -69,6 +71,7 @@ fun HomeScreen(
             Button(
                 onClick = {
                     navController.navigate(route = Screen.Transaction.route)
+                    onTransactionEvent(TransactionEvent.LoadProductTagsMap)
                 },
                 modifier = Modifier
                     .size(300.dp, 75.dp)
@@ -92,25 +95,13 @@ fun HomeScreen(
             }
             Button(
                 onClick = {
-                    navController.navigate(route = Screen.Catalog.route)
+                    navController.navigate(route = Screen.Tags.route)
                 },
                 modifier = Modifier
                     .size(300.dp, 75.dp)
             ) {
                 Text(
-                    text = "Access Catalog",
-                    fontSize = 20.sp
-                )
-            }
-            Button(
-                onClick = {
-                    navController.navigate(route = Screen.Collections.route)
-                },
-                modifier = Modifier
-                    .size(300.dp, 75.dp)
-            ) {
-                Text(
-                    text = "Access Collections",
+                    text = "Access Tags",
                     fontSize = 20.sp
                 )
             }
@@ -136,6 +127,7 @@ fun HomeScreenPreview() {
     VendorFlowTheme {
         HomeScreen(
             navController = rememberNavController(),
+            onTransactionEvent = { }
         )
     }
 }

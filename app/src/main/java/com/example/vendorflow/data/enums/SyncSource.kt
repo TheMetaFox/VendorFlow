@@ -1,4 +1,4 @@
-package com.example.vendorflow.ui.screens.catalog
+package com.example.vendorflow.data.enums
 
 enum class SyncSource {
     VENDOR_FLOW,

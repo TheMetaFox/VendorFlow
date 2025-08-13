@@ -4,10 +4,8 @@ import android.util.Log
 import com.example.vendorflow.data.VendorRepository
 import com.example.vendorflow.data.notion.NotionRepository
 import com.example.vendorflow.data.notion.serializable.ProductCatalogPages
-import com.example.vendorflow.data.room.entities.Product
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -18,7 +16,7 @@ class SyncNotionToAppUseCase @Inject constructor(
     private val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default
 ) {
     suspend operator fun invoke() {
-        withContext(defaultDispatcher) {
+        withContext(context = defaultDispatcher) {
 
             val productCatalogPages: ProductCatalogPages = notionRepository.getProductCatalogPages()
             productCatalogPages.results.forEach { page ->

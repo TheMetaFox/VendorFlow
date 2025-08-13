@@ -3,8 +3,9 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
-    id("com.google.devtools.ksp")
-    id("com.google.dagger.hilt.android")
+    alias(libs.plugins.google.devtools.ksp)
+    alias(libs.plugins.google.dagger.hilt)
+    alias(libs.plugins.androidx.room)
 }
 
 android {
@@ -20,10 +21,10 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
 
-        ksp {
-            arg("room.schemaLocation", "$projectDir/schemas")
-        }
+    room {
+        schemaDirectory("$projectDir/schemas")
     }
 
     buildTypes {
@@ -48,6 +49,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.symbol.processing.api)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

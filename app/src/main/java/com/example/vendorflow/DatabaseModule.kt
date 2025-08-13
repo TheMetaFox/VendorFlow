@@ -27,7 +27,7 @@ object DatabaseModule {
                 klass = VendorDatabase::class.java,
                 name = "Vendor.db"
             )
-            .addMigrations(VendorDatabase.migration4to5, VendorDatabase.migration5to6, VendorDatabase.migration6to7)
+            .addMigrations(VendorDatabase.migration4to5, VendorDatabase.migration5to6, VendorDatabase.migration6to7, VendorDatabase.migration7to8)
             .build()
         return vendorDatabase
     }

@@ -2,12 +2,12 @@ package com.example.vendorflow.ui.screens.transation
 
 import android.net.Uri
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,47 +19,49 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.staggeredgrid.LazyHorizontalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Remove
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
-import com.example.vendorflow.data.room.entities.Collection
 import com.example.vendorflow.data.room.entities.Product
+import com.example.vendorflow.data.room.entities.Tag
 import com.example.vendorflow.ui.Screen
+import com.example.vendorflow.ui.screens.inventory.InventoryEvent
 import com.example.vendorflow.ui.theme.VendorFlowTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -98,7 +100,7 @@ fun TransactionScreen(
         floatingActionButton = {
             Button(
                 onClick = {
-                    onTransactionEvent(TransactionEvent.DisplayItemizedTransaction(transactionState.itemQuantityList))
+                    onTransactionEvent(TransactionEvent.DisplayItemizedTransaction(itemList = transactionState.itemQuantityList))
                     navController.navigate(route = Screen.Review.route)
                 },
                 modifier = Modifier
@@ -111,162 +113,181 @@ fun TransactionScreen(
             }
         }
     ) { innerPadding ->
-        var selected: String by remember { mutableStateOf(value = "") }
+//        val selected: MutableList<String> by remember { mutableStateOf(mutableListOf()) }
         Column(
             modifier = Modifier
                 .padding(paddingValues = innerPadding)
-                .padding(all = 10.dp)
-                .padding(bottom = 75.dp)
-                .height(800.dp)
                 .verticalScroll(state = rememberScrollState()),
         ) {
-            transactionState.collectionList.forEach { collection ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { selected = if (selected == collection.collectionName) "" else collection.collectionName},
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = collection.collectionName,
-                        fontSize = 24.sp
+            LazyHorizontalStaggeredGrid(
+                rows = StaggeredGridCells.FixedSize(size = 36.dp),
+                modifier = Modifier
+                    .height(height = 100.dp)
+                    .fillMaxWidth(),
+                contentPadding = PaddingValues(all = 5.dp),
+                verticalArrangement = Arrangement.SpaceEvenly,
+                horizontalItemSpacing = 5.dp
+            ) {
+                items(items = transactionState.tagList) { tag ->
+                    FilterChip(
+                        selected = (transactionState.selectedTags.contains(element = tag)),
+                        onClick = {
+                            onTransactionEvent(TransactionEvent.UpdateSelectedTags(tag = tag))
+                        },
+                        label = {
+                            Text(text = tag.tagName)
+                        }
                     )
-                    if (selected == collection.collectionName) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowDropUp,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(size = 40.dp)
-                        )
-                    } else {
-                        Icon(
-                            imageVector = Icons.Default.ArrowDropDown,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(size = 40.dp)
-                        )
-                    }
                 }
-                if (selected == collection.collectionName) {
-                    LazyVerticalGrid(
-                        columns = GridCells.Adaptive(minSize = 100.dp),
+            }
+            TextField(
+                value = transactionState.searchText,
+                onValueChange = { onTransactionEvent(TransactionEvent.UpdateSearchField(text = it))},
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+            LazyVerticalGrid(
+                columns = GridCells.Adaptive(minSize = 100.dp),
+                modifier = Modifier
+                    .heightIn(0.dp, 2000.dp)
+                    .fillMaxSize()
+            )  {
+                items(count = transactionState.productList.size) { it ->
+                    val product: Product = transactionState.productList[it]
+                    Card(
+                        onClick = {
+                            onTransactionEvent(TransactionEvent.IncreaseItemQuantity(product = product))
+                            if (transactionState.itemQuantityList[product] == product.stock) {
+                                coroutineScope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        message = "Out Of Stock"
+                                    )
+                                }
+                            }
+                        },
                         modifier = Modifier
-                            .wrapContentHeight()
-                            .heightIn(0.dp, 2000.dp)
-                    ) {
-                        items(transactionState.productList.filter { it.collectionId == collection.collectionId }.size) { it ->
-                            val product: Product = transactionState.productList.filter { it.collectionId == collection.collectionId }[it]
-                            Card(
-                                onClick = {
-                                    onTransactionEvent(TransactionEvent.IncreaseItemQuantity(product = product))
-                                    if (transactionState.itemQuantityList[product] == product.stock) {
-                                        coroutineScope.launch {
-                                            snackbarHostState.showSnackbar(
-                                                message = "Out Of Stock"
-                                            )
-                                        }
-                                    }
-                                },
-                                modifier = Modifier
 //                                    .size(width = 150.dp, height = 200.dp)
-                                    .wrapContentHeight()
-                                    .padding(5.dp),
-                                enabled = ((transactionState.itemQuantityList[product] != product.stock) && (product.stock != 0))
-                            ) {
-                                Column(
+                            .wrapContentHeight()
+                            .padding(all = 5.dp),
+                        enabled = ((transactionState.itemQuantityList[product] != product.stock) && (product.stock != 0))
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize(),
+                            verticalArrangement = Arrangement.SpaceBetween,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Box {
+                                Image(
+                                    imageVector = Icons.Default.ShoppingBag,
+                                    contentDescription = "product image",
                                     modifier = Modifier
-                                        .fillMaxSize(),
-                                    verticalArrangement = Arrangement.SpaceBetween,
-                                    horizontalAlignment = Alignment.CenterHorizontally
+                                        .aspectRatio(ratio = 1f)
+                                        .fillMaxWidth()
+                                )
+                                Image(
+                                    painter = rememberAsyncImagePainter(
+                                        model = product.image,
+                                        contentScale = ContentScale.Crop
+                                    ),
+                                    contentDescription = "product image",
+                                    modifier = Modifier
+                                        .aspectRatio(ratio = 1f)
+                                        .fillMaxWidth(),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .padding(all = 5.dp),
+                                verticalArrangement = Arrangement.SpaceBetween,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = product.productName,
+                                    modifier = Modifier
+                                        .fillMaxWidth(),
+                                    fontSize = 14.sp,
+                                    minLines = 2
+                                )
+                                Text(
+                                    text = String.format(Locale.ENGLISH, "$%.2f", product.price),
+                                    modifier = Modifier
+                                        .fillMaxWidth(),
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontSize = 12.sp,
+                                    textAlign = TextAlign.End,
+                                    lineHeight = 10.sp,
+                                    minLines = 1
+                                )
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(space = 5.dp),
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Box {
-                                        Image(
-                                            imageVector = Icons.Default.ShoppingBag,
-                                            contentDescription = "product image",
+                                    Button(
+                                        onClick = {
+                                            onTransactionEvent(
+                                                TransactionEvent.DecreaseItemQuantity(
+                                                    product = product
+                                                )
+                                            )
+                                        },
+                                        modifier = Modifier
+                                            .size(size = 20.dp),
+                                        enabled = (transactionState.itemQuantityList.containsKey(
+                                            product
+                                        )),
+                                        contentPadding = PaddingValues(all = 0.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Outlined.Remove,
+                                            contentDescription = "Decrease Quantity",
                                             modifier = Modifier
-                                                .aspectRatio(1f)
-                                                .fillMaxWidth()
-                                        )
-                                        Image(
-                                            painter = rememberAsyncImagePainter(
-                                                model = product.image,
-                                                contentScale = ContentScale.Crop
-                                            ),
-                                            contentDescription = "product image",
-                                            modifier = Modifier
-                                                .aspectRatio(1f)
-                                                .fillMaxWidth(),
-                                            contentScale = ContentScale.Crop,
+                                                .size(size = 15.dp)
                                         )
                                     }
-                                    Column(
-                                        modifier = Modifier
-                                            .fillMaxHeight()
-                                            .padding(5.dp),
-                                        verticalArrangement = Arrangement.SpaceBetween,
-                                        horizontalAlignment = Alignment.CenterHorizontally
-                                    ) {
-                                        Text(
-                                            text = product.productName,
-                                            modifier = Modifier
-                                                .fillMaxWidth(),
-                                            fontSize = 14.sp,
-                                            minLines = 2
-                                        )
-                                        Row(
-                                            horizontalArrangement = Arrangement.spacedBy(5.dp),
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Button(
-                                                onClick = {
-                                                    onTransactionEvent(TransactionEvent.DecreaseItemQuantity(product = product))
-                                                },
-                                                modifier = Modifier
-                                                    .size(size = 20.dp),
-                                                enabled = (transactionState.itemQuantityList.containsKey(product)),
-                                                contentPadding = PaddingValues(all = 0.dp)
-                                            ) {
-                                                Icon(
-                                                    imageVector = Icons.Outlined.Remove,
-                                                    contentDescription = "Decrease Quantity",
-                                                    modifier = Modifier
-                                                        .size(size = 15.dp)
+                                    Text(
+                                        text = if (transactionState.itemQuantityList[product] == null) "0" else transactionState.itemQuantityList[product].toString(),
+                                        fontSize = 16.sp
+                                    )
+                                    Button(
+                                        onClick = {
+                                            onTransactionEvent(
+                                                TransactionEvent.IncreaseItemQuantity(
+                                                    product = product
                                                 )
-                                            }
-                                            Text(
-                                                text = if (transactionState.itemQuantityList[product] == null) "0" else transactionState.itemQuantityList[product].toString(),
-                                                fontSize = 16.sp
                                             )
-                                            Button(
-                                                onClick = {
-                                                    onTransactionEvent(TransactionEvent.IncreaseItemQuantity(product = product))
-                                                    if (transactionState.itemQuantityList[product] == product.stock) {
-                                                        coroutineScope.launch {
-                                                            snackbarHostState.showSnackbar(
-                                                                message = "Out Of Stock"
-                                                            )
-                                                        }
-                                                    }
-                                                },
-                                                modifier = Modifier
-                                                    .size(size = 20.dp),
-                                                enabled = ((transactionState.itemQuantityList[product] != product.stock) && (product.stock != 0)),
-                                                contentPadding = PaddingValues(all = 0.dp)
-                                            ) {
-                                                Icon(
-                                                    imageVector = Icons.Outlined.Add,
-                                                    contentDescription = "Increase Quantity",
-                                                    modifier = Modifier
-                                                        .size(size = 15.dp)
-                                                )
+                                            if (transactionState.itemQuantityList[product] == product.stock) {
+                                                coroutineScope.launch {
+                                                    snackbarHostState.showSnackbar(
+                                                        message = "Out Of Stock"
+                                                    )
+                                                }
                                             }
-                                        }
+                                        },
+                                        modifier = Modifier
+                                            .size(size = 20.dp),
+                                        enabled = ((transactionState.itemQuantityList[product] != product.stock) && (product.stock != 0)),
+                                        contentPadding = PaddingValues(all = 0.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Outlined.Add,
+                                            contentDescription = "Increase Quantity",
+                                            modifier = Modifier
+                                                .size(size = 15.dp)
+                                        )
                                     }
                                 }
                             }
                         }
                     }
+                }
+                item {
+                    Spacer(
+                        modifier = Modifier
+                            .height(height = 80.dp)
+                    )
                 }
             }
         }
@@ -277,31 +298,36 @@ fun TransactionScreen(
 @Composable
 fun TransactionScreenPreview() {
     VendorFlowTheme {
-        val collection1 = Collection(
-            collectionId = 1,
-            collectionName = "Sanrio"
-        )
         val product1 = Product(
             productId = 1,
             productName = "Hello Kitty Bracelet",
-            collectionId = 1,
             image = Uri.EMPTY,
             price = 2f,
             cost = 0.23f,
             stock = 10,
-        )
-        val collection2 = Collection(
-            collectionId = 2,
-            collectionName = "Horoscope"
         )
         val product2 = Product(
             productId = 2,
             productName = "Libra Bracelet",
-            collectionId = 2,
             image = Uri.EMPTY,
             price = 2f,
             cost = 0.23f,
             stock = 10,
+        )
+        val tag1 = Tag(
+            tagId = 1,
+            tagName = "Sanrio",
+            ordinal = 1
+        )
+        val tag2 = Tag(
+            tagId = 2,
+            tagName = "Astrology",
+            ordinal = 2
+        )
+        val tag3 = Tag(
+            tagId = 3,
+            tagName = "Necklace",
+            ordinal = 3
         )
 
         TransactionScreen(
@@ -310,11 +336,11 @@ fun TransactionScreenPreview() {
             coroutineScope = rememberCoroutineScope(),
             onTransactionEvent = { },
             transactionState = TransactionState(
-                collectionList = arrayListOf(collection1, collection2),
                 productList = arrayListOf(product1, product2),
                 itemQuantityList = mapOf(
                     product1 to 2
-                )
+                ),
+                tagList = listOf(tag1, tag2, tag3)
             ),
         )
     }

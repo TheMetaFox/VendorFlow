@@ -1,6 +1,6 @@
 package com.example.vendorflow.data.notion.serializable
 
-import com.example.vendorflow.data.Color
+import com.example.vendorflow.data.enums.Color
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

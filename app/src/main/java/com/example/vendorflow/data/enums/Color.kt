@@ -1,4 +1,4 @@
-package com.example.vendorflow.data
+package com.example.vendorflow.data.enums
 
 enum class Color {
     blue,

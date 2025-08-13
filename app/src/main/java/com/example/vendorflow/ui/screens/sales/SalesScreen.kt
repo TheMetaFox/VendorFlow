@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.vendorflow.data.PaymentMethod
+import com.example.vendorflow.data.enums.PaymentMethod
 import com.example.vendorflow.data.room.entities.Sale
 import com.example.vendorflow.data.room.entities.relations.SoldItem
 import com.example.vendorflow.ui.theme.VendorFlowTheme

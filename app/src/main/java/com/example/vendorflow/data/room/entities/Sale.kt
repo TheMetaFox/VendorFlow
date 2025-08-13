@@ -2,7 +2,7 @@ package com.example.vendorflow.data.room.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.example.vendorflow.data.PaymentMethod
+import com.example.vendorflow.data.enums.PaymentMethod
 import java.time.LocalDateTime
 
 @Entity

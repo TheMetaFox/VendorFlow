@@ -27,11 +27,11 @@ object ApiModule {
     @Singleton
     @Provides
     fun provideClient(): HttpClient {
-        val client = HttpClient(Android) {
-            install(Logging) {
+        val client = HttpClient(engineFactory = Android) {
+            install(plugin = Logging) {
                 level = LogLevel.ALL
             }
-            install(ContentNegotiation) {
+            install(plugin = ContentNegotiation) {
                 json(
                     json = Json {
                         ignoreUnknownKeys = true
@@ -40,17 +40,17 @@ object ApiModule {
                     }
                 )
             }
-            install(Auth) {
-                bearer() {
+            install(plugin = Auth) {
+                bearer {
                     loadTokens {
                         BearerTokens(
-                            NOTION_TOKEN,
+                            accessToken = NOTION_TOKEN,
                             refreshToken = null
                         )
                     }
                 }
             }
-            install(DefaultRequest) {
+            install(plugin = DefaultRequest) {
                 header("Notion-Version", "2022-06-28")
             }
         }
@@ -60,11 +60,11 @@ object ApiModule {
     @Provides
     fun provideApi(
         client: HttpClient
-    ) = NotionApi(client)
+    ) = NotionApi(client = client)
 
     @Singleton
     @Provides
     fun provideApiRepository(
         api: NotionApi
-    ) = NotionRepository(api)
+    ) = NotionRepository(notionApi = api)
 }

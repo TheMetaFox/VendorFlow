@@ -6,13 +6,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.vendorflow.ui.screens.catalog.CatalogEvent
-import com.example.vendorflow.ui.screens.catalog.CatalogScreen
-import com.example.vendorflow.ui.screens.catalog.CatalogState
 import com.example.vendorflow.ui.screens.HomeScreen
-import com.example.vendorflow.ui.screens.collections.CollectionsEvent
-import com.example.vendorflow.ui.screens.collections.CollectionsScreen
-import com.example.vendorflow.ui.screens.collections.CollectionsState
+import com.example.vendorflow.ui.screens.tags.TagsEvent
+import com.example.vendorflow.ui.screens.tags.TagScreen
+import com.example.vendorflow.ui.screens.tags.TagsState
 import com.example.vendorflow.ui.screens.inventory.InventoryEvent
 import com.example.vendorflow.ui.screens.inventory.InventoryScreen
 import com.example.vendorflow.ui.screens.inventory.InventoryState
@@ -35,14 +32,12 @@ fun NavGraph(
     onLoginEvent: (LoginEvent) -> Unit,
     onTransactionEvent: (TransactionEvent) -> Unit,
     onInventoryEvent: (InventoryEvent) -> Unit,
-    onCatalogEvent: (CatalogEvent) -> Unit,
-    onCollectionsEvent: (CollectionsEvent) -> Unit,
+    onTagsEvent: (TagsEvent) -> Unit,
     onSalesEvent: (SalesEvent) -> Unit,
     loginState: LoginState,
     transactionState: TransactionState,
     inventoryState: InventoryState,
-    catalogState: CatalogState,
-    collectionsState: CollectionsState,
+    tagsState: TagsState,
     salesState: SalesState,
 ) {
     val navController: NavHostController = rememberNavController()
@@ -60,9 +55,11 @@ fun NavGraph(
         composable(route = Screen.Home.route) {
             HomeScreen(
                 navController = navController,
-            )
+                onTransactionEvent = onTransactionEvent,
+                )
         }
         composable(route = Screen.Transaction.route) {
+
             TransactionScreen(
                 navController = navController,
                 snackbarHostState = snackbarHostState,
@@ -78,18 +75,11 @@ fun NavGraph(
                 inventoryState = inventoryState
             )
         }
-        composable(route = Screen.Catalog.route) {
-            CatalogScreen(
+        composable(route = Screen.Tags.route) {
+            TagScreen(
                 navController = navController,
-                onCatalogEvent = onCatalogEvent,
-                catalogState = catalogState
-            )
-        }
-        composable(route = Screen.Collections.route) {
-            CollectionsScreen(
-                navController = navController,
-                onCollectionsEvent = onCollectionsEvent,
-                collectionsState = collectionsState
+                onTagsEvent = onTagsEvent,
+                tagsState = tagsState
             )
         }
         composable(route = Screen.Sales.route) {

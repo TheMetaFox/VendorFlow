@@ -1,7 +1,9 @@
 package com.example.vendorflow.ui.screens.inventory
 
 import android.net.Uri
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,14 +13,21 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Feedback
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Remove
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -28,21 +37,27 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.vendorflow.data.room.entities.Product
+import com.example.vendorflow.data.enums.SyncSource
 import com.example.vendorflow.ui.theme.VendorFlowTheme
 import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun InventoryScreen(
     modifier: Modifier = Modifier,
@@ -50,6 +65,19 @@ fun InventoryScreen(
     onInventoryEvent: (InventoryEvent) -> Unit,
     inventoryState: InventoryState,
     ) {
+    if (inventoryState.isShowingProductDialog) {
+        InventoryItemDialog(
+            modifier = Modifier
+                .width(width = 300.dp),
+            onInventoryEvent = onInventoryEvent,
+            inventoryState = inventoryState
+        )
+    } else if (inventoryState.isShowingConfirmationDialog) {
+        SyncConfirmationDialog(
+            onInventoryEvent = onInventoryEvent,
+            inventoryState = inventoryState
+        )
+    }
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
@@ -67,6 +95,39 @@ fun InventoryScreen(
                         )
                     }
                 },
+                actions = {
+                    var showDropDownMenu by remember { mutableStateOf(false) }
+                    IconButton(
+                        onClick = { showDropDownMenu = true }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.MoreVert,
+                            contentDescription = "more vertical",
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    }
+                    DropdownMenu(
+                        expanded = showDropDownMenu,
+                        onDismissRequest = { showDropDownMenu = false },
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text(text = "Update Vendor Flow") },
+                            onClick = {
+                                onInventoryEvent(InventoryEvent.ShowConfirmationDialog(source = SyncSource.NOTION))
+                                showDropDownMenu = false
+                            },
+                            leadingIcon = { Icon(imageVector = Icons.Outlined.Info, contentDescription = "info") }
+                        )
+                        DropdownMenuItem(
+                            text = { Text(text = "Update Notion") },
+                            onClick = {
+                                onInventoryEvent(InventoryEvent.ShowConfirmationDialog(source = SyncSource.VENDOR_FLOW))
+                                showDropDownMenu = false
+                            },
+                            leadingIcon = { Icon(imageVector = Icons.Outlined.Feedback, "feedback") }
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors().copy(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -74,6 +135,20 @@ fun InventoryScreen(
                 )
             )
         },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    onInventoryEvent(InventoryEvent.ShowProductDialog(product = null))
+                },
+                modifier = Modifier
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Add,
+                    contentDescription = "Add Product Item"
+                )
+            }
+        }
+
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -95,7 +170,11 @@ fun InventoryScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(text = "Retail", fontSize = 12.sp)
-                    Text(text = String.format(Locale.ENGLISH, "\$%.2f", inventoryState.totalInventoryPrice), fontSize = 18.sp)
+                    Text(
+                        text = String.format(Locale.ENGLISH, format = "$%.2f", inventoryState.totalInventoryPrice),
+                        color = MaterialTheme.colorScheme.primary,
+                        fontSize = 18.sp
+                    )
                 }
                 Column(
                     modifier = Modifier,
@@ -103,7 +182,11 @@ fun InventoryScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(text = "Cost", fontSize = 12.sp)
-                    Text(text = String.format(Locale.ENGLISH, "\$%.2f", inventoryState.totalInventoryCost), fontSize = 18.sp)
+                    Text(
+                        text = String.format(Locale.ENGLISH, "$%.2f", inventoryState.totalInventoryCost),
+                        color = MaterialTheme.colorScheme.secondary,
+                        fontSize = 18.sp
+                    )
                 }
                 Column(
                     modifier = Modifier,
@@ -111,7 +194,11 @@ fun InventoryScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(text = "Profit", fontSize = 12.sp)
-                    Text(text = String.format(Locale.ENGLISH, "\$%.2f", (inventoryState.totalInventoryPrice - inventoryState.totalInventoryCost)), fontSize = 18.sp)
+                    Text(
+                        text = String.format(Locale.ENGLISH, "$%.2f", (inventoryState.totalInventoryPrice - inventoryState.totalInventoryCost)),
+                        color = MaterialTheme.colorScheme.tertiary,
+                        fontSize = 18.sp
+                    )
                 }
             }
             TextField(
@@ -121,9 +208,10 @@ fun InventoryScreen(
                     .fillMaxWidth()
             )
             LazyColumn {
-                items(inventoryState.inventoryList.size) {
+                items(count = inventoryState.inventoryList.size) {
                     val inventoryItem: Product = inventoryState.inventoryList[it]
-
+                    var isDropDownMenuVisible: Boolean by remember { mutableStateOf(false) }
+                    var longPressOffset: DpOffset by remember { mutableStateOf(DpOffset.Zero) }
                     Row(
                         modifier = Modifier
                             .fillMaxWidth(),
@@ -131,6 +219,15 @@ fun InventoryScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Row(
+                            modifier = Modifier
+                                .combinedClickable(
+                                    onClick = {
+                                        onInventoryEvent(InventoryEvent.ShowProductDialog(product = inventoryItem))
+                                    },
+                                    onLongClick = {
+                                        isDropDownMenuVisible = true
+                                    }
+                                ),
                             horizontalArrangement = Arrangement.spacedBy(5.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -174,18 +271,39 @@ fun InventoryScreen(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(
-                                        text = String.format(Locale.ENGLISH, "\$%.2f", inventoryItem.price),
+                                        text = String.format(Locale.ENGLISH, "$%.2f", inventoryItem.price),
+                                        color = MaterialTheme.colorScheme.primary,
                                         fontSize = 12.sp
                                     )
                                     Text(
-                                        text = String.format(Locale.ENGLISH, "\$%.2f", inventoryItem.cost),
+                                        text = String.format(Locale.ENGLISH, "$%.2f", inventoryItem.cost),
+                                        color = MaterialTheme.colorScheme.secondary,
                                         fontSize = 12.sp
                                     )
                                     Text(
-                                        text = String.format(Locale.ENGLISH, "\$%.2f", (inventoryItem.price - inventoryItem.cost)),
+                                        text = String.format(Locale.ENGLISH, "$%.2f", (inventoryItem.price - inventoryItem.cost)),
+                                        color = MaterialTheme.colorScheme.tertiary,
                                         fontSize = 12.sp
                                     )
                                 }
+                            }
+                            DropdownMenu(
+                                expanded = isDropDownMenuVisible,
+                                onDismissRequest = { isDropDownMenuVisible = false },
+                                offset = longPressOffset
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text(text = "Edit") },
+                                    onClick = {
+                                        onInventoryEvent(InventoryEvent.ShowProductDialog(product = inventoryItem))
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text(text = "Remove") },
+                                    onClick = {
+                                        onInventoryEvent(InventoryEvent.DeleteProductItem(product = inventoryItem))
+                                    }
+                                )
                             }
                         }
                         Row(
@@ -242,8 +360,6 @@ fun InventoryScreenPreview() {
         val product = Product(
             productId = 1,
             productName = "Hello Kitty Kandi",
-//            collectionName = "Sanrio Collection",
-            collectionId = 0,
             image = Uri.EMPTY,
             price = 2f,
             cost = 0.23f,

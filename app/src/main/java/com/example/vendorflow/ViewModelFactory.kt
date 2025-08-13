@@ -4,23 +4,24 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.vendorflow.data.VendorRepository
 import com.example.vendorflow.data.notion.NotionRepository
-import com.example.vendorflow.logic.DeleteCollectionUseCase
+import com.example.vendorflow.logic.DeleteTagUseCase
 import com.example.vendorflow.logic.DeleteProductUseCase
-import com.example.vendorflow.logic.GetCollectionUseCase
-import com.example.vendorflow.logic.GetCollectionsOrderedByIdUseCase
+import com.example.vendorflow.logic.GetTagsOrderedByOrdinalUseCase
 import com.example.vendorflow.logic.GetInventoryCostUseCase
 import com.example.vendorflow.logic.GetInventoryPriceUseCase
 import com.example.vendorflow.logic.GetProductUseCase
 import com.example.vendorflow.logic.GetProductsOrderedByNameUseCase
 import com.example.vendorflow.logic.GetSalesUseCase
 import com.example.vendorflow.logic.GetSoldItemsGroupedBySaleUseCase
+import com.example.vendorflow.logic.GetTagsFromProductIdUseCase
 import com.example.vendorflow.logic.InsertTransactionUseCase
 import com.example.vendorflow.logic.SyncAppToNotionUseCase
 import com.example.vendorflow.logic.SyncNotionToAppUseCase
-import com.example.vendorflow.logic.UpsertCollectionUseCase
+import com.example.vendorflow.logic.UpdateTagOrdinalsUseCase
+import com.example.vendorflow.logic.UpsertProductTagsUseCase
+import com.example.vendorflow.logic.UpsertTagUseCase
 import com.example.vendorflow.logic.UpsertProductUseCase
-import com.example.vendorflow.ui.screens.catalog.CatalogViewModel
-import com.example.vendorflow.ui.screens.collections.CollectionsViewModel
+import com.example.vendorflow.ui.screens.tags.TagsViewModel
 import com.example.vendorflow.ui.screens.inventory.InventoryViewModel
 import com.example.vendorflow.ui.screens.login.LoginViewModel
 import com.example.vendorflow.ui.screens.sales.SalesViewModel
@@ -40,34 +41,32 @@ class ViewModelFactory(
                 TransactionViewModel(
                     UpsertProductUseCase(vendorRepository),
                     InsertTransactionUseCase(vendorRepository),
-                    GetCollectionsOrderedByIdUseCase(vendorRepository),
+                    GetTagsFromProductIdUseCase(vendorRepository),
+                    GetTagsOrderedByOrdinalUseCase(vendorRepository),
                     GetProductsOrderedByNameUseCase(vendorRepository)
                 ) as T
             }
             modelClass.isAssignableFrom(InventoryViewModel::class.java) -> {
                 InventoryViewModel(
-                    UpsertProductUseCase(vendorRepository),
                     GetProductsOrderedByNameUseCase(vendorRepository),
                     GetInventoryPriceUseCase(vendorRepository),
-                    GetInventoryCostUseCase(vendorRepository)
-                ) as T
-            }
-            modelClass.isAssignableFrom(CatalogViewModel::class.java) -> {
-                CatalogViewModel(
+                    GetInventoryCostUseCase(vendorRepository),
+                    GetTagsOrderedByOrdinalUseCase(vendorRepository),
                     UpsertProductUseCase(vendorRepository),
+                    UpsertProductTagsUseCase(vendorRepository),
                     DeleteProductUseCase(vendorRepository),
                     SyncAppToNotionUseCase(vendorRepository, notionRepository, GetProductUseCase(vendorRepository)),
                     SyncNotionToAppUseCase(vendorRepository, notionRepository, GetProductUseCase(vendorRepository)),
-                    GetProductsOrderedByNameUseCase(vendorRepository),
                     GetProductUseCase(vendorRepository),
-                    GetCollectionUseCase(vendorRepository)
+                    GetTagsFromProductIdUseCase(vendorRepository)
                 ) as T
             }
-            modelClass.isAssignableFrom(CollectionsViewModel::class.java) -> {
-                CollectionsViewModel(
-                    UpsertCollectionUseCase(vendorRepository),
-                    DeleteCollectionUseCase(vendorRepository),
-                    GetCollectionsOrderedByIdUseCase(vendorRepository)
+            modelClass.isAssignableFrom(TagsViewModel::class.java) -> {
+                TagsViewModel(
+                    UpsertTagUseCase(vendorRepository),
+                    DeleteTagUseCase(vendorRepository),
+                    GetTagsOrderedByOrdinalUseCase(vendorRepository),
+                    UpdateTagOrdinalsUseCase(vendorRepository)
                 ) as T
             }
             modelClass.isAssignableFrom(SalesViewModel::class.java) -> {

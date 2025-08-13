@@ -8,15 +8,15 @@ import androidx.room.TypeConverters
 import androidx.room.migration.AutoMigrationSpec
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.example.vendorflow.data.room.entities.Collection
 import com.example.vendorflow.data.room.entities.Product
 import com.example.vendorflow.data.room.entities.Sale
-import com.example.vendorflow.data.room.entities.relations.ProductCollection
+import com.example.vendorflow.data.room.entities.Tag
+import com.example.vendorflow.data.room.entities.relations.ProductTag
 import com.example.vendorflow.data.room.entities.relations.SoldItem
 
 @Database(
-    entities = [Product::class, Sale::class, SoldItem::class, Collection::class, ProductCollection::class],
-    version = 7,
+    entities = [Product::class, Tag::class, Sale::class, ProductTag::class, SoldItem::class],
+    version = 8,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 2, to = 3),
@@ -130,17 +130,53 @@ abstract class VendorDatabase: RoomDatabase() {
                 db.execSQL(
                     sql = """
                         DROP TABLE `ProductCollection`;
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    sql = """
+                        CREATE TABLE IF NOT EXISTS `Tag` (
+                            `tagId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
+                            `tagName` TEXT NOT NULL, 
+                            `ordinal` INTEGER NOT NULL 
+                        );
                     """.trimIndent(),
                 )
                 db.execSQL(
                     sql = """
-                        
+                        CREATE TABLE IF NOT EXISTS `ProductTag` (
+                            `productTagId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                            `productId` INTEGER NOT NULL,
+                            `tagId` INTEGER NOT NULL
+                        );
                     """.trimIndent(),
                 )
                 db.execSQL(
                     sql = """
-                        
-                    """.trimIndent(),
+                        CREATE TABLE IF NOT EXISTS `New_Product` (
+                            `productId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
+                            `productName` TEXT NOT NULL, 
+                            `image` TEXT NOT NULL, 
+                            `price` REAL NOT NULL, 
+                            `cost` REAL NOT NULL, 
+                            `stock` INTEGER NOT NULL 
+                        );
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    sql = """
+                        INSERT INTO `New_Product` (`productName`, `image`, `price`, `cost`, `stock`) 
+                        SELECT `productName`, `image`, `price`, `cost`, `stock` FROM `Product`;
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    sql = """
+                        DROP TABLE `Product`;
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    sql = """
+                        ALTER TABLE `New_Product` RENAME TO `Product`;
+                    """.trimIndent()
                 )
             }
         }

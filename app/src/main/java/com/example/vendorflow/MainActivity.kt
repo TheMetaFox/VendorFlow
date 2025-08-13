@@ -5,7 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -20,12 +19,9 @@ import com.example.vendorflow.DatabaseModule.provideDatabaseRepository
 import com.example.vendorflow.data.VendorRepository
 import com.example.vendorflow.data.notion.NotionRepository
 import com.example.vendorflow.ui.NavGraph
-import com.example.vendorflow.ui.screens.catalog.CatalogEvent
-import com.example.vendorflow.ui.screens.catalog.CatalogState
-import com.example.vendorflow.ui.screens.catalog.CatalogViewModel
-import com.example.vendorflow.ui.screens.collections.CollectionsEvent
-import com.example.vendorflow.ui.screens.collections.CollectionsState
-import com.example.vendorflow.ui.screens.collections.CollectionsViewModel
+import com.example.vendorflow.ui.screens.tags.TagsEvent
+import com.example.vendorflow.ui.screens.tags.TagsState
+import com.example.vendorflow.ui.screens.tags.TagsViewModel
 import com.example.vendorflow.ui.screens.inventory.InventoryEvent
 import com.example.vendorflow.ui.screens.inventory.InventoryState
 import com.example.vendorflow.ui.screens.inventory.InventoryViewModel
@@ -40,7 +36,6 @@ import com.example.vendorflow.ui.screens.transation.TransactionState
 import com.example.vendorflow.ui.screens.transation.TransactionViewModel
 import com.example.vendorflow.ui.theme.VendorFlowTheme
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,14 +59,10 @@ class MainActivity : ComponentActivity() {
             owner = this,
             factory = viewModelFactory
         )[InventoryViewModel::class.java]
-        val catalogViewModel = ViewModelProvider(
+        val tagsViewModel = ViewModelProvider(
             owner = this,
             factory = viewModelFactory
-        )[CatalogViewModel::class.java]
-        val collectionsViewModel = ViewModelProvider(
-            owner = this,
-            factory = viewModelFactory
-        )[CollectionsViewModel::class.java]
+        )[TagsViewModel::class.java]
         val salesViewModel = ViewModelProvider(
             owner = this,
             factory = viewModelFactory
@@ -80,8 +71,7 @@ class MainActivity : ComponentActivity() {
         val onLoginEvent: (LoginEvent) -> Unit = loginViewModel::onEvent
         val onTransactionEvent: (TransactionEvent) -> Unit = transactionViewModel::onEvent
         val onInventoryEvent: (InventoryEvent) -> Unit = inventoryViewModel::onEvent
-        val onCatalogEvent: (CatalogEvent) -> Unit = catalogViewModel::onEvent
-        val onCollectionsEvent: (CollectionsEvent) -> Unit = collectionsViewModel::onEvent
+        val onTagsEvent: (TagsEvent) -> Unit = tagsViewModel::onEvent
         val onSalesEvent: (SalesEvent) -> Unit = salesViewModel::onEvent
 
         setContent {
@@ -89,8 +79,7 @@ class MainActivity : ComponentActivity() {
                 val loginState: LoginState by loginViewModel.state.collectAsState()
                 val transactionState: TransactionState by transactionViewModel.state.collectAsState()
                 val inventoryState: InventoryState by inventoryViewModel.state.collectAsState()
-                val catalogState: CatalogState by catalogViewModel.state.collectAsState()
-                val collectionsState: CollectionsState by collectionsViewModel.state.collectAsState()
+                val tagsState: TagsState by tagsViewModel.state.collectAsState()
                 val salesState: SalesState by salesViewModel.state.collectAsState()
 
                 val snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
@@ -102,14 +91,12 @@ class MainActivity : ComponentActivity() {
                     onLoginEvent = onLoginEvent,
                     onTransactionEvent = onTransactionEvent,
                     onInventoryEvent = onInventoryEvent,
-                    onCatalogEvent = onCatalogEvent,
-                    onCollectionsEvent = onCollectionsEvent,
+                    onTagsEvent = onTagsEvent,
                     onSalesEvent = onSalesEvent,
                     loginState = loginState,
                     transactionState = transactionState,
                     inventoryState = inventoryState,
-                    catalogState = catalogState,
-                    collectionsState = collectionsState,
+                    tagsState = tagsState,
                     salesState = salesState,
                 )
             }

@@ -1,11 +1,13 @@
 package com.example.vendorflow.data
 
 import android.util.Log
-import com.example.vendorflow.data.room.entities.Collection
+import com.example.vendorflow.data.enums.PaymentMethod
+import com.example.vendorflow.data.room.entities.Tag
 import com.example.vendorflow.data.room.entities.Product
 import com.example.vendorflow.data.room.entities.Sale
 import com.example.vendorflow.data.room.entities.relations.SoldItem
 import com.example.vendorflow.data.room.VendorDao
+import com.example.vendorflow.data.room.entities.relations.ProductTag
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDateTime
 
@@ -35,25 +37,35 @@ class VendorRepository(private val vendorDao: VendorDao) {
         return vendorDao.upsertProduct(product = product)
     }
 
-    suspend fun upsertCollection(collection: Collection) {
-        return vendorDao.upsertCollection(collection = collection)
+    suspend fun upsertTag(tag: Tag) {
+        return vendorDao.upsertTag(tag = tag)
     }
 
-    suspend fun deleteCollection(collection: Collection) {
-        return vendorDao.deleteCollection(collectionId = collection.collectionId)
+    suspend fun upsertProductTag(productTag: ProductTag) {
+        return vendorDao.upsertProductTag(productTag = productTag)
+    }
+
+    suspend fun deleteTag(tag: Tag) {
+        return vendorDao.deleteTag(tagId = tag.tagId)
     }
 
     suspend fun deleteProduct(product: Product) {
         return vendorDao.deleteProduct(productId = product.productId)
     }
 
+    suspend fun deleteProductTag(productTag: ProductTag) {
+        return vendorDao.deleteProductTag(productId = productTag.productId, tagId = productTag.tagId)
+    }
+
+
     fun getProductsOrderedByName(): Flow<List<Product>> {
         return vendorDao.getProductsOrderedByName()
     }
 
-    fun getCollectionsOrderedById(): Flow<List<Collection>> {
-        return vendorDao.getCollectionsOrderedById()
+    fun getTagsOrderedByOrdinal(): Flow<List<Tag>> {
+        return vendorDao.getTagsOrderedByOrdinal()
     }
+
 
     fun getTotalInventoryPrice(): Flow<Float> {
         return vendorDao.getTotalInventoryPrice()
@@ -81,13 +93,21 @@ class VendorRepository(private val vendorDao: VendorDao) {
         return vendorDao.getProductFromProductName(productName = productName)
     }
 
-    suspend fun getCollectionFromCollectionId(collectionId: Int): Collection {
-        return vendorDao.getCollectionFromCollectionId(collectionId = collectionId)
+    suspend fun getTagFromTagId(tagId: Int): Tag {
+        return vendorDao.getTagFromTagId(tagId = tagId)
     }
 
-    suspend fun getCollectionFromCollectionName(collectionName: String): Collection {
-        return vendorDao.getCollectionFromCollectionName(collectionName = collectionName)
+    suspend fun getTagFromTagName(tagName: String): Tag {
+        return vendorDao.getTagFromTagName(tagName = tagName)
     }
+
+    suspend fun getTagsFromProductId(productId: Int): List<Tag> {
+        return vendorDao.getTagsFromProductId(productId)
+    }
+
+//    suspend fun reorderTags(tag: Tag, ordinal: Int) {
+//        return vendorDao.reorderTags(tag = tag, ordinal = ordinal)
+//    }
 
 
 //    suspend fun getSoldItemsFromSaleId(saleId: Int): List<Sale> {

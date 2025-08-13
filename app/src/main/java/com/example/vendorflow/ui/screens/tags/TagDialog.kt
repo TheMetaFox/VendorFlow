@@ -1,4 +1,4 @@
-package com.example.vendorflow.ui.screens.collections
+package com.example.vendorflow.ui.screens.tags
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,14 +18,14 @@ import androidx.compose.ui.window.Dialog
 import com.example.vendorflow.ui.theme.VendorFlowTheme
 
 @Composable
-fun CollectionDialog(
+fun TagDialog(
     modifier: Modifier = Modifier,
-    onCollectionsEvent: (CollectionsEvent) -> Unit,
-    collectionsState: CollectionsState,
+    onTagsEvent: (TagsEvent) -> Unit,
+    tagsState: TagsState,
 ) {
     Dialog(
         onDismissRequest = {
-            onCollectionsEvent(CollectionsEvent.HideCollectionDialog)
+            onTagsEvent(TagsEvent.HideTagDialog)
         },
     ) {
         Box(
@@ -38,10 +38,10 @@ fun CollectionDialog(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 TextField(
-                    value = collectionsState.collectionNameField,
+                    value = tagsState.tagNameField,
                     onValueChange = {
-                        onCollectionsEvent(
-                            CollectionsEvent.UpdateCollectionNameField(
+                        onTagsEvent(
+                            TagsEvent.UpdateTagNameField(
                                 text = it
                             )
                         )
@@ -51,7 +51,7 @@ fun CollectionDialog(
                 )
                 Button(
                     onClick = {
-                        onCollectionsEvent(CollectionsEvent.UpsertCollection)
+                        onTagsEvent(TagsEvent.UpsertTag)
                     },
                     modifier = Modifier
                         .size(width = 250.dp, height = 65.dp)
@@ -69,13 +69,13 @@ fun CollectionDialog(
 
 @Preview(showBackground = true)
 @Composable
-fun CollectionDialogPreview() {
+fun TagDialogPreview() {
     VendorFlowTheme {
-        CollectionDialog(
+        TagDialog(
             modifier = Modifier
                 .size(width = 300.dp, height = 200.dp),
-            onCollectionsEvent = { },
-            collectionsState = CollectionsState()
+            onTagsEvent = { },
+            tagsState = TagsState()
         )
     }
 }

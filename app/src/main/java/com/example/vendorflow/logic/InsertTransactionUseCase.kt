@@ -1,6 +1,6 @@
 package com.example.vendorflow.logic
 
-import com.example.vendorflow.data.PaymentMethod
+import com.example.vendorflow.data.enums.PaymentMethod
 import com.example.vendorflow.data.VendorRepository
 import com.example.vendorflow.data.room.entities.Product
 import javax.inject.Inject

@@ -1,4 +1,4 @@
-package com.example.vendorflow.ui.screens.catalog
+package com.example.vendorflow.ui.screens.inventory
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -8,12 +8,18 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.staggeredgrid.LazyHorizontalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ImageSearch
 import androidx.compose.material3.Button
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -28,17 +34,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
+import com.example.vendorflow.data.room.entities.Tag
 import com.example.vendorflow.ui.theme.VendorFlowTheme
 
 @Composable
-fun CatalogItemDialog(
+fun InventoryItemDialog(
     modifier: Modifier = Modifier,
-    onCatalogEvent: (CatalogEvent) -> Unit,
-    catalogState: CatalogState,
+    onInventoryEvent: (InventoryEvent) -> Unit,
+    inventoryState: InventoryState,
     ) {
     Dialog(
         onDismissRequest = {
-            onCatalogEvent(CatalogEvent.HideCatalogItemDialog)
+            onInventoryEvent(InventoryEvent.HideProductDialog)
         },
     ) {
         Box(
@@ -47,7 +54,7 @@ fun CatalogItemDialog(
         ) {
             Column(
                 modifier = modifier,
-                verticalArrangement = Arrangement.spacedBy(20.dp),
+                verticalArrangement = Arrangement.spacedBy(space = 20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 val context = LocalContext.current
@@ -55,7 +62,7 @@ fun CatalogItemDialog(
                     contract = ActivityResultContracts.PickVisualMedia(),
                     onResult = { uri ->
                         if (uri == null) return@rememberLauncherForActivityResult
-                        onCatalogEvent(CatalogEvent.UpdateImageField(uri))
+                        onInventoryEvent(InventoryEvent.UpdateImageField(uri))
                     }
                 )
                 Box(
@@ -71,7 +78,7 @@ fun CatalogItemDialog(
                         colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
                     )
                     AsyncImage(
-                        model = catalogState.productImageUri,
+                        model = inventoryState.productImageUri,
                         contentDescription = "Product image",
                         modifier = modifier
                             .clickable {
@@ -83,10 +90,10 @@ fun CatalogItemDialog(
                     )
                 }
                 TextField(
-                    value = catalogState.productNameField,
+                    value = inventoryState.productNameField,
                     onValueChange = {
-                        onCatalogEvent(
-                            CatalogEvent.UpdateTextField(
+                        onInventoryEvent(
+                            InventoryEvent.UpdateTextField(
                                 textField = "Name",
                                 text = it
                             )
@@ -96,23 +103,10 @@ fun CatalogItemDialog(
                     placeholder = { Text(text = "") },
                 )
                 TextField(
-                    value = catalogState.collectionField,
+                    value = inventoryState.priceField,
                     onValueChange = {
-                        onCatalogEvent(
-                            CatalogEvent.UpdateTextField(
-                                textField = "Collection",
-                                text = it
-                            )
-                        )
-                    },
-                    label = { Text(text = "Collection") },
-                    placeholder = { Text(text = "") },
-                )
-                TextField(
-                    value = catalogState.priceField,
-                    onValueChange = {
-                        onCatalogEvent(
-                            CatalogEvent.UpdateTextField(
+                        onInventoryEvent(
+                            InventoryEvent.UpdateTextField(
                                 textField = "Price",
                                 text = it
                             )
@@ -122,10 +116,10 @@ fun CatalogItemDialog(
                     placeholder = { Text(text = "") },
                 )
                 TextField(
-                    value = catalogState.costField,
+                    value = inventoryState.costField,
                     onValueChange = {
-                        onCatalogEvent(
-                            CatalogEvent.UpdateTextField(
+                        onInventoryEvent(
+                            InventoryEvent.UpdateTextField(
                                 textField = "Cost",
                                 text = it
                             )
@@ -134,9 +128,37 @@ fun CatalogItemDialog(
                     label = { Text(text = "Cost") },
                     placeholder = { Text(text = "") },
                 )
+
+                LazyHorizontalStaggeredGrid(
+                    rows = StaggeredGridCells.Adaptive(minSize = 34.dp),
+                    modifier = Modifier
+                        .fillMaxHeight(0.4f)
+                        .fillMaxWidth(),
+//                    contentPadding = PaddingValues(all = 5.dp),
+                    verticalArrangement = Arrangement.spacedBy(space = 5.dp),
+                    horizontalItemSpacing = 5.dp
+                ) {
+                    items(count = inventoryState.tagList.size) {
+                        val tag: Tag = inventoryState.tagList[it]
+                        FilterChip(
+                            selected = (inventoryState.selectedTags.contains(element = tag)),
+                            onClick = {
+                                onInventoryEvent(InventoryEvent.UpdateSelectedTags(tag = tag))
+                            },
+                            label = {
+                                Text(text = tag.tagName)
+                            },
+                            modifier = Modifier
+                                .align(alignment = Alignment.CenterHorizontally),
+                            colors = FilterChipDefaults.filterChipColors().copy(
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.4f)
+                            )
+                        )
+                    }
+                }
                 Button(
                     onClick = {
-                        onCatalogEvent(CatalogEvent.UpsertCatalogItem(context = context))
+                        onInventoryEvent(InventoryEvent.UpsertProductItem(context = context))
                     },
                     modifier = Modifier
                         .size(width = 250.dp, height = 65.dp)
@@ -151,16 +173,33 @@ fun CatalogItemDialog(
     }
 }
 
+val tag1 = Tag(
+    tagId = 1,
+    tagName = "Sanrio",
+    ordinal = 1
+)
+val tag2 = Tag(
+    tagId = 2,
+    tagName = "Astrology",
+    ordinal = 2
+)
+val tag3 = Tag(
+    tagId = 3,
+    tagName = "Necklace",
+    ordinal = 3
+)
 
 @Preview(showBackground = true)
 @Composable
 fun CatalogItemDialogPreview() {
     VendorFlowTheme {
-        CatalogItemDialog(
+        InventoryItemDialog(
             modifier = Modifier
                 .width(width = 300.dp),
-            onCatalogEvent = { },
-            catalogState = CatalogState()
+            onInventoryEvent = { },
+            inventoryState = InventoryState(
+                tagList = listOf(tag1, tag2, tag3)
+            )
         )
     }
 }

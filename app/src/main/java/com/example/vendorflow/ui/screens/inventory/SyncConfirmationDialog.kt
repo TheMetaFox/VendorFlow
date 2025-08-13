@@ -1,4 +1,4 @@
-package com.example.vendorflow.ui.screens.catalog
+package com.example.vendorflow.ui.screens.inventory
 
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
@@ -21,22 +21,23 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.vendorflow.data.enums.SyncSource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SyncConfirmationDialog(
-    onCatalogEvent: (CatalogEvent) -> Unit,
-    catalogState: CatalogState,
+    onInventoryEvent: (InventoryEvent) -> Unit,
+    inventoryState: InventoryState,
     modifier: Modifier = Modifier
 ) {
     BasicAlertDialog(
         onDismissRequest = {
-            onCatalogEvent(CatalogEvent.HideConfirmationDialog)
+            onInventoryEvent(InventoryEvent.HideConfirmationDialog)
         },
         modifier = modifier
     ) {
         Surface(
-            shape = RoundedCornerShape(20.dp),
+            shape = RoundedCornerShape(size = 20.dp),
 //            border = BorderStroke(
 //                width = 1.dp,
 //                color = MaterialTheme.colorScheme.primary
@@ -44,8 +45,8 @@ fun SyncConfirmationDialog(
         ) {
             Column(
                 modifier = Modifier
-                    .padding(12.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
+                    .padding(all = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(space = 10.dp)
             ) {
                 Text(
                     text = "Are you sure?",
@@ -55,7 +56,7 @@ fun SyncConfirmationDialog(
                 Text(
                     text = buildAnnotatedString {
                         append("This will override your data in ")
-                        when (catalogState.syncSource) {
+                        when (inventoryState.syncSource) {
                             SyncSource.VENDOR_FLOW -> append("Notion")
                             SyncSource.NOTION -> append("Vendor Flow")
                         }
@@ -65,11 +66,11 @@ fun SyncConfirmationDialog(
                 Row (
                     modifier = Modifier
                         .align(Alignment.End),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    horizontalArrangement = Arrangement.spacedBy(space = 10.dp)
                 ) {
                     Button(
                         onClick = {
-                            onCatalogEvent(CatalogEvent.HideConfirmationDialog)
+                            onInventoryEvent(InventoryEvent.HideConfirmationDialog)
                         },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.background,
@@ -87,11 +88,11 @@ fun SyncConfirmationDialog(
                     Button(
                         onClick = {
                             Log.i("SyncConfirmationDialog.kt", "Syncing...")
-                            when (catalogState.syncSource) {
-                                SyncSource.VENDOR_FLOW -> onCatalogEvent(CatalogEvent.UpdateNotion)
-                                SyncSource.NOTION -> onCatalogEvent(CatalogEvent.UpdateVendorFlow)
+                            when (inventoryState.syncSource) {
+                                SyncSource.VENDOR_FLOW -> onInventoryEvent(InventoryEvent.UpdateNotion)
+                                SyncSource.NOTION -> onInventoryEvent(InventoryEvent.UpdateVendorFlow)
                             }
-                            onCatalogEvent(CatalogEvent.HideConfirmationDialog)
+                            onInventoryEvent(InventoryEvent.HideConfirmationDialog)
                         }
                     ) {
                         Text(
@@ -108,7 +109,7 @@ fun SyncConfirmationDialog(
 @Composable
 fun SyncConfirmationDialogPreview() {
     SyncConfirmationDialog(
-        onCatalogEvent = { },
-        catalogState = CatalogState(),
+        onInventoryEvent = { },
+        inventoryState = InventoryState(),
     )
 }

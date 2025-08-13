@@ -57,7 +57,6 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.vendorflow.data.room.entities.Product
 import com.example.vendorflow.data.room.entities.Tag
 import com.example.vendorflow.ui.Screen
-import com.example.vendorflow.ui.screens.inventory.InventoryEvent
 import com.example.vendorflow.ui.theme.VendorFlowTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
